@@ -1,86 +1,75 @@
-import { useState, useEffect } from 'react'
-import { githubApi } from '../api'
-import type { Repository, Webhook, CreateWebhookDto } from '../types'
+import { useState, type FormEvent } from 'react'
+import {
+  useListRepositoriesQuery,
+  useListWebhooksQuery,
+  useCreateWebhookMutation,
+} from '../shared/src/web'
+import type { Repository, CreateWebhookDto } from '../shared/src/web'
 
 export function GitHub() {
-  const [repositories, setRepositories] = useState<Repository[]>([])
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null)
-  const [webhooks, setWebhooks] = useState<Webhook[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [webhookUrl, setWebhookUrl] = useState('')
   const [webhookEvents, setWebhookEvents] = useState<string[]>(['push'])
   const [webhookSecret, setWebhookSecret] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
-  useEffect(() => {
-    loadRepositories()
-  }, [])
+  const { data: repositories = [], isLoading: isLoadingRepos, error: reposError } = useListRepositoriesQuery()
+  const { data: webhooks = [] } = useListWebhooksQuery(
+    {
+      owner: selectedRepo?.owner.login || '',
+      repo: selectedRepo?.name || '',
+    },
+    { skip: !selectedRepo }
+  )
+  const [createWebhook, { isLoading: isCreatingWebhook }] = useCreateWebhookMutation()
 
-  const loadRepositories = async () => {
-    try {
-      setIsLoading(true)
-      const repos = await githubApi.listRepositories()
-      setRepositories(Array.isArray(repos) ? repos : [])
-    } catch (err) {
-      setError('Failed to load repositories. Make sure your GitHub account is linked.')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const loadWebhooks = async (owner: string, repo: string) => {
-    try {
-      const hooks = await githubApi.listWebhooks(owner, repo)
-      setWebhooks(hooks)
-    } catch (err) {
-      setWebhooks([])
-    }
-  }
-
-  const handleSelectRepo = async (repo: Repository) => {
+  const handleSelectRepo = (repo: Repository) => {
     setSelectedRepo(repo)
-    await loadWebhooks(repo.owner.login, repo.name)
+    setShowCreateForm(false)
+    setErrorMessage('')
   }
 
-  const handleCreateWebhook = async () => {
+  const handleCreateWebhook = async (e: FormEvent) => {
+    e.preventDefault()
+    setErrorMessage('')
     if (!selectedRepo) return
 
     try {
       const dto: CreateWebhookDto = {
         owner: selectedRepo.owner.login,
         repo: selectedRepo.name,
+        webhookUrl,
         events: webhookEvents,
         secret: webhookSecret || undefined,
       }
-      await githubApi.createWebhook(dto)
-      await loadWebhooks(selectedRepo.owner.login, selectedRepo.name)
+      await createWebhook(dto).unwrap()
       setShowCreateForm(false)
       setWebhookUrl('')
       setWebhookSecret('')
       setWebhookEvents(['push'])
-    } catch (err) {
-      setError('Failed to create webhook')
+    } catch (err: any) {
+      const message = err.data?.message || 'Failed to create webhook.'
+      setErrorMessage(message)
+      console.error('Failed to create webhook:', err)
     }
   }
-
-  const availableEvents = ['push', 'pull_request', 'issues', 'create', 'delete', 'release']
-
+  
   const toggleEvent = (event: string) => {
     setWebhookEvents((prev) =>
       prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
     )
   }
 
-  if (isLoading) {
+  if (isLoadingRepos) {
     return <div className="loading">Loading repositories...</div>
   }
 
-  if (error && repositories.length === 0) {
+  if (reposError && repositories.length === 0) {
     return (
       <div className="github-page">
         <h1>GitHub Integration</h1>
-        <div className="error-message">{error}</div>
+        <div className="error-message">Failed to load repositories. Make sure your GitHub account is linked.</div>
         <p>Please link your GitHub account from your profile page.</p>
       </div>
     )
@@ -115,8 +104,19 @@ export function GitHub() {
             </button>
 
             {showCreateForm && (
-              <div className="webhook-form">
+              <form className="webhook-form" onSubmit={handleCreateWebhook}>
                 <h3>Create New Webhook</h3>
+                {errorMessage && <div className="error-message">{errorMessage}</div>}
+                <div className="form-group">
+                  <label>Payload URL</label>
+                  <input
+                    type="url"
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder="https://example.com/webhook"
+                    required
+                  />
+                </div>
                 <div className="form-group">
                   <label>Secret (optional)</label>
                   <input
@@ -129,7 +129,7 @@ export function GitHub() {
                 <div className="form-group">
                   <label>Events</label>
                   <div className="events-checkboxes">
-                    {availableEvents.map((event) => (
+                    {['push', 'pull_request', 'issues', 'create', 'delete', 'release'].map((event) => (
                       <label key={event} className="checkbox-label">
                         <input
                           type="checkbox"
@@ -142,14 +142,14 @@ export function GitHub() {
                   </div>
                 </div>
                 <div className="form-actions">
-                  <button onClick={handleCreateWebhook} className="btn-primary">
-                    Create
+                  <button type="submit" className="btn-primary" disabled={isCreatingWebhook}>
+                    {isCreatingWebhook ? 'Creating...' : 'Create'}
                   </button>
-                  <button onClick={() => setShowCreateForm(false)} className="btn-secondary">
+                  <button type="button" onClick={() => setShowCreateForm(false)} className="btn-secondary">
                     Cancel
                   </button>
                 </div>
-              </div>
+              </form>
             )}
 
             <ul className="webhook-list">

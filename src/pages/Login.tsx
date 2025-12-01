@@ -1,28 +1,24 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useLoginMutation } from '../shared/src/web'
 
 export function Login() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const { login } = useAuth()
+  const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
+  const [login, { isLoading }] = useLoginMutation()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
-    setIsLoading(true)
-
+    setErrorMessage('')
     try {
-      await login(email, password)
+      await login({ email, password }).unwrap()
       navigate('/dashboard')
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Login failed'
-      setError(errorMessage)
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      const message = err.data?.message || 'An unexpected error occurred.'
+      setErrorMessage(message)
+      console.error('Failed to login:', err)
     }
   }
 
@@ -30,7 +26,7 @@ export function Login() {
     <div className="auth-container">
       <div className="auth-card">
         <h1>Login</h1>
-        {error && <div className="error-message">{error}</div>}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="email">Email</label>

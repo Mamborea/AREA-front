@@ -1,12 +1,14 @@
-import { useAuth } from '../context/AuthContext'
-import { authApi } from '../api'
+import { useAppSelector, useGetGithubAuthUrlQuery } from '../shared/src/web'
 
 export function Profile() {
-  const { user } = useAuth()
+  const { user } = useAppSelector((state) => state.auth)
+  const { refetch } = useGetGithubAuthUrlQuery()
 
   const handleLinkGithub = async () => {
-    const url = await authApi.getGithubAuthUrl()
-    window.location.href = url
+    const result = await refetch()
+    if (result.data?.url) {
+      window.location.href = result.data.url
+    }
   }
 
   return (

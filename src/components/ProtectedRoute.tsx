@@ -1,12 +1,2 @@
-import { Navigate, Outlet } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
-
-export function ProtectedRoute() {
-  const { isAuthenticated, isLoading } = useAuth()
-
-  if (isLoading) {
-    return <div className="loading">Loading...</div>
-  }
-
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />
-}
+// This component is no longer needed and has been removed.
+// The routing logic is now handled directly in App.tsx based on the Redux state.

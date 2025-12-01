@@ -1,36 +1,32 @@
 import { useState, type FormEvent } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import { useRegisterMutation } from '../shared/src/web'
 
 export function Register() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
-  const { register } = useAuth()
+  const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate()
+  const [register, { isLoading }] = useRegisterMutation()
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
-    setError('')
+    setErrorMessage('')
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match')
+      setErrorMessage('Passwords do not match')
       return
     }
 
-    setIsLoading(true)
-
     try {
-      await register(email, password, name)
+      await register({ name, email, password }).unwrap()
       navigate('/login', { state: { message: 'Registration successful! Please login.' } })
-    } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : 'Registration failed'
-      setError(errorMessage)
-    } finally {
-      setIsLoading(false)
+    } catch (err: any) {
+      const message = err.data?.message || 'An unexpected error occurred.'
+      setErrorMessage(message)
+      console.error('Failed to register:', err)
     }
   }
 
@@ -38,7 +34,7 @@ export function Register() {
     <div className="auth-container">
       <div className="auth-card">
         <h1>Register</h1>
-        {error && <div className="error-message">{error}</div>}
+        {errorMessage && <div className="error-message">{errorMessage}</div>}
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label htmlFor="name">Name</label>
