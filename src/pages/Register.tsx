@@ -1,32 +1,35 @@
-import { useState, type FormEvent } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useRegisterMutation } from '../shared/src/web'
+import { type FormEvent, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useRegisterMutation } from '../shared/src/web';
 
 export function Register() {
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
-  const navigate = useNavigate()
-  const [register, { isLoading }] = useRegisterMutation()
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
+  const [register, { isLoading }] = useRegisterMutation();
 
   const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault()
-    setErrorMessage('')
+    e.preventDefault();
+    setErrorMessage('');
 
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match')
-      return
+      setErrorMessage('Passwords do not match');
+      return;
     }
 
     try {
-      await register({ name, email, password }).unwrap()
-      navigate('/login', { state: { message: 'Registration successful! Please login.' } })
-    } catch (err: any) {
-      const message = err.data?.message || 'An unexpected error occurred.'
-      setErrorMessage(message)
-      console.error('Failed to register:', err)
+      await register({ name, email, password }).unwrap();
+      navigate('/login', {
+        state: { message: 'Registration successful! Please login.' },
+      });
+    } catch (err) {
+      const apiError = err as { data?: { message: string } };
+      const message = apiError.data?.message || 'An unexpected error occurred.';
+      setErrorMessage(message);
+      console.error('Failed to register:', err);
     }
   };
 
@@ -34,7 +37,7 @@ export function Register() {
     <div className='auth-container'>
       <div className='auth-card'>
         <h1>Register</h1>
-        {errorMessage && <div className="error-message">{errorMessage}</div>}
+        {errorMessage && <div className='error-message'>{errorMessage}</div>}
         <form onSubmit={handleSubmit}>
           <div className='form-group'>
             <label htmlFor='name'>Name</label>

@@ -1,15 +1,13 @@
-export type { RootState, AppDispatch } from './store'
-export { useAppDispatch, useAppSelector } from './hooks'
-
-export { logout, loadToken } from './features/authSlice'
-
-export * from './services/api'
+export { loadToken, logout } from './features/authSlice';
+export { useAppDispatch, useAppSelector } from './hooks';
+export * from './services/api';
+export type { AppDispatch, RootState } from './store';
 
 export type {
-  User,
   ApiAuthResponse,
   AuthState,
-  Repository,
-  Webhook,
   CreateWebhookDto,
-} from './types'
+  Repository,
+  User,
+  Webhook,
+} from './types';

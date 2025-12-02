@@ -1,23 +1,23 @@
-import { createSlice } from '@reduxjs/toolkit'
-import type { PayloadAction } from '@reduxjs/toolkit'
+import type { PayloadAction } from '@reduxjs/toolkit';
+import { createSlice } from '@reduxjs/toolkit';
 
 interface ConfigState {
-  baseUrl: string
+  baseUrl: string;
 }
 
 const initialState: ConfigState = {
   baseUrl: '',
-}
+};
 
 export const configSlice = createSlice({
   name: 'config',
   initialState,
   reducers: {
     setBaseUrl: (state, action: PayloadAction<string>) => {
-      state.baseUrl = action.payload
+      state.baseUrl = action.payload;
     },
   },
-})
+});
 
-export const { setBaseUrl } = configSlice.actions
-export default configSlice.reducer
+export const { setBaseUrl } = configSlice.actions;
+export default configSlice.reducer;

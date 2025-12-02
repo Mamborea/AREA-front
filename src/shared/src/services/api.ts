@@ -1,46 +1,52 @@
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import type { RootState } from '../store'
-import { persistToken } from '../features/authSlice'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { persistToken } from '../features/authSlice';
+import type { RootState } from '../store';
 import type {
   ApiAuthResponse,
   CreateWebhookDto,
   Repository,
   User,
   Webhook,
-} from '../types'
+} from '../types';
 
 export const apiSlice = createApi({
   reducerPath: 'api',
   // Allow both mobile and web to use the redux
   baseQuery: async (args, api, extraOptions) => {
-    const baseUrl = (api.getState() as RootState).config.baseUrl
+    const baseUrl = (api.getState() as RootState).config.baseUrl;
     const rawBaseQuery = fetchBaseQuery({
       baseUrl,
       prepareHeaders: (headers, { getState }) => {
-        const token = (getState() as RootState).auth.token
+        const token = (getState() as RootState).auth.token;
         if (token) {
-          headers.set('Authorization', `Bearer ${token}`)
+          headers.set('Authorization', `Bearer ${token}`);
         }
-        return headers
+        return headers;
       },
-    })
-    return rawBaseQuery(args, api, extraOptions)
+    });
+    return rawBaseQuery(args, api, extraOptions);
   },
   tagTypes: ['User', 'Repos', 'Webhooks'],
   endpoints: (builder) => ({
-    login: builder.mutation<ApiAuthResponse, { email: string; password: string }>({
+    login: builder.mutation<
+      ApiAuthResponse,
+      { email: string; password: string }
+    >({
       query: (credentials) => ({
         url: '/auth/login',
         method: 'POST',
         body: credentials,
       }),
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled
-        dispatch(persistToken(data.access_token))
+        const { data } = await queryFulfilled;
+        dispatch(persistToken(data.access_token));
       },
       invalidatesTags: ['User'],
     }),
-    register: builder.mutation<User, { email: string; password: string; name: string }>({
+    register: builder.mutation<
+      User,
+      { email: string; password: string; name: string }
+    >({
       query: (userInfo) => ({
         url: '/auth/register',
         method: 'POST',
@@ -59,8 +65,11 @@ export const apiSlice = createApi({
       providesTags: ['Repos'],
     }),
     listWebhooks: builder.query<Webhook[], { owner: string; repo: string }>({
-      query: ({ owner, repo }) => `/github/repositories/${owner}/${repo}/webhooks`,
-      providesTags: (result, error, { repo }) => [{ type: 'Webhooks', id: repo }],
+      query: ({ owner, repo }) =>
+        `/github/repositories/${owner}/${repo}/webhooks`,
+      providesTags: (result, error, { repo }) => [
+        { type: 'Webhooks', id: repo },
+      ],
     }),
     createWebhook: builder.mutation<Webhook, CreateWebhookDto>({
       query: (dto) => ({
@@ -68,10 +77,12 @@ export const apiSlice = createApi({
         method: 'POST',
         body: dto,
       }),
-      invalidatesTags: (result, error, dto) => [{ type: 'Webhooks', id: dto.repo }],
+      invalidatesTags: (result, error, dto) => [
+        { type: 'Webhooks', id: dto.repo },
+      ],
     }),
   }),
-})
+});
 
 export const {
   useLoginMutation,
@@ -81,4 +92,4 @@ export const {
   useListRepositoriesQuery,
   useListWebhooksQuery,
   useCreateWebhookMutation,
-} = apiSlice
+} = apiSlice;

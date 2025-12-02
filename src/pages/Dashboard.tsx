@@ -1,8 +1,8 @@
-import { useAppSelector } from '../shared/src/web'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
+import { useAppSelector } from '../shared/src/web';
 
 export function Dashboard() {
-  const { user } = useAppSelector((state) => state.auth)
+  const { user } = useAppSelector((state) => state.auth);
 
   return (
     <div className='dashboard'>

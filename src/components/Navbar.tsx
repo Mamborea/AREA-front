@@ -1,22 +1,22 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAppSelector, useAppDispatch, logout } from '../shared/src/web'
+import { Link, useNavigate } from 'react-router-dom';
+import { logout, useAppDispatch, useAppSelector } from '../shared/src/web';
 
 export function Navbar() {
-  const { isAuthenticated } = useAppSelector((state) => state.auth)
-  const dispatch = useAppDispatch()
-  const navigate = useNavigate()
+  const { isAuthenticated } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
-    dispatch(logout())
-    navigate('/login')
-  }
+    dispatch(logout());
+    navigate('/login');
+  };
 
   return (
     <nav className='navbar'>
       <div className='navbar-brand'>
         <Link to='/'>AREA</Link>
       </div>
-      <div className="navbar-menu">
+      <div className='navbar-menu'>
         {isAuthenticated ? (
           <>
             <Link to='/dashboard'>Dashboard</Link>

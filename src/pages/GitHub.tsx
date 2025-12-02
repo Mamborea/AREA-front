@@ -1,39 +1,44 @@
-import { useState, type FormEvent } from 'react'
+import { type FormEvent, useState } from 'react';
+import type { CreateWebhookDto, Repository } from '../shared/src/web';
 import {
+  useCreateWebhookMutation,
   useListRepositoriesQuery,
   useListWebhooksQuery,
-  useCreateWebhookMutation,
-} from '../shared/src/web'
-import type { Repository, CreateWebhookDto } from '../shared/src/web'
+} from '../shared/src/web';
 
 export function GitHub() {
-  const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null)
-  const [showCreateForm, setShowCreateForm] = useState(false)
-  const [webhookUrl, setWebhookUrl] = useState('')
-  const [webhookEvents, setWebhookEvents] = useState<string[]>(['push'])
-  const [webhookSecret, setWebhookSecret] = useState('')
-  const [errorMessage, setErrorMessage] = useState('')
+  const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [webhookUrl, setWebhookUrl] = useState('');
+  const [webhookEvents, setWebhookEvents] = useState<string[]>(['push']);
+  const [webhookSecret, setWebhookSecret] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
-  const { data: repositories = [], isLoading: isLoadingRepos, error: reposError } = useListRepositoriesQuery()
+  const {
+    data: repositories = [],
+    isLoading: isLoadingRepos,
+    error: reposError,
+  } = useListRepositoriesQuery();
   const { data: webhooks = [] } = useListWebhooksQuery(
     {
       owner: selectedRepo?.owner.login || '',
       repo: selectedRepo?.name || '',
     },
     { skip: !selectedRepo }
-  )
-  const [createWebhook, { isLoading: isCreatingWebhook }] = useCreateWebhookMutation()
+  );
+  const [createWebhook, { isLoading: isCreatingWebhook }] =
+    useCreateWebhookMutation();
 
   const handleSelectRepo = (repo: Repository) => {
-    setSelectedRepo(repo)
-    setShowCreateForm(false)
-    setErrorMessage('')
-  }
+    setSelectedRepo(repo);
+    setShowCreateForm(false);
+    setErrorMessage('');
+  };
 
   const handleCreateWebhook = async (e: FormEvent) => {
-    e.preventDefault()
-    setErrorMessage('')
-    if (!selectedRepo) return
+    e.preventDefault();
+    setErrorMessage('');
+    if (!selectedRepo) return;
 
     try {
       const dto: CreateWebhookDto = {
@@ -42,18 +47,19 @@ export function GitHub() {
         webhookUrl,
         events: webhookEvents,
         secret: webhookSecret || undefined,
-      }
-      await createWebhook(dto).unwrap()
-      setShowCreateForm(false)
-      setWebhookUrl('')
-      setWebhookSecret('')
-      setWebhookEvents(['push'])
-    } catch (err: any) {
-      const message = err.data?.message || 'Failed to create webhook.'
-      setErrorMessage(message)
-      console.error('Failed to create webhook:', err)
+      };
+      await createWebhook(dto).unwrap();
+      setShowCreateForm(false);
+      setWebhookUrl('');
+      setWebhookSecret('');
+      setWebhookEvents(['push']);
+    } catch (err) {
+      const apiError = err as { data?: { message: string } };
+      const message = apiError.data?.message || 'Failed to create webhook.';
+      setErrorMessage(message);
+      console.error('Failed to create webhook:', err);
     }
-  }
+  };
 
   const toggleEvent = (event: string) => {
     setWebhookEvents((prev) =>
@@ -62,14 +68,16 @@ export function GitHub() {
   };
 
   if (isLoadingRepos) {
-    return <div className="loading">Loading repositories...</div>
+    return <div className='loading'>Loading repositories...</div>;
   }
 
   if (reposError && repositories.length === 0) {
     return (
       <div className='github-page'>
         <h1>GitHub Integration</h1>
-        <div className="error-message">Failed to load repositories. Make sure your GitHub account is linked.</div>
+        <div className='error-message'>
+          Failed to load repositories. Make sure your GitHub account is linked.
+        </div>
         <p>Please link your GitHub account from your profile page.</p>
       </div>
     );
@@ -112,21 +120,24 @@ export function GitHub() {
             </button>
 
             {showCreateForm && (
-              <form className="webhook-form" onSubmit={handleCreateWebhook}>
+              <form className='webhook-form' onSubmit={handleCreateWebhook}>
                 <h3>Create New Webhook</h3>
-                {errorMessage && <div className="error-message">{errorMessage}</div>}
-                <div className="form-group">
-                  <label>Payload URL</label>
+                {errorMessage && (
+                  <div className='error-message'>{errorMessage}</div>
+                )}
+                <div className='form-group'>
+                  <label htmlFor='webhook-url'>Payload URL</label>
                   <input
-                    type="url"
+                    id='webhook-url'
+                    type='url'
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
-                    placeholder="https://example.com/webhook"
+                    placeholder='https://example.com/webhook'
                     required
                   />
                 </div>
-                <div className="form-group">
-                  <label>Secret (optional)</label>
+                <div className='form-group'>
+                  <label htmlFor='webhook-secret'>Secret (optional)</label>
                   <input
                     id='webhook-secret'
                     type='text'
@@ -135,11 +146,18 @@ export function GitHub() {
                     placeholder='Webhook secret'
                   />
                 </div>
-                <div className="form-group">
-                  <label>Events</label>
-                  <div className="events-checkboxes">
-                    {['push', 'pull_request', 'issues', 'create', 'delete', 'release'].map((event) => (
-                      <label key={event} className="checkbox-label">
+                <fieldset className='form-group'>
+                  <legend>Events</legend>
+                  <div className='events-checkboxes'>
+                    {[
+                      'push',
+                      'pull_request',
+                      'issues',
+                      'create',
+                      'delete',
+                      'release',
+                    ].map((event) => (
+                      <label key={event} className='checkbox-label'>
                         <input
                           type='checkbox'
                           checked={webhookEvents.includes(event)}
@@ -149,12 +167,20 @@ export function GitHub() {
                       </label>
                     ))}
                   </div>
-                </div>
-                <div className="form-actions">
-                  <button type="submit" className="btn-primary" disabled={isCreatingWebhook}>
+                </fieldset>
+                <div className='form-actions'>
+                  <button
+                    type='submit'
+                    className='btn-primary'
+                    disabled={isCreatingWebhook}
+                  >
                     {isCreatingWebhook ? 'Creating...' : 'Create'}
                   </button>
-                  <button type="button" onClick={() => setShowCreateForm(false)} className="btn-secondary">
+                  <button
+                    type='button'
+                    onClick={() => setShowCreateForm(false)}
+                    className='btn-secondary'
+                  >
                     Cancel
                   </button>
                 </div>

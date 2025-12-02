@@ -1,15 +1,15 @@
-import { useAppSelector, useGetGithubAuthUrlQuery } from '../shared/src/web'
+import { useAppSelector, useGetGithubAuthUrlQuery } from '../shared/src/web';
 
 export function Profile() {
-  const { user } = useAppSelector((state) => state.auth)
-  const { refetch } = useGetGithubAuthUrlQuery()
+  const { user } = useAppSelector((state) => state.auth);
+  const { refetch } = useGetGithubAuthUrlQuery();
 
   const handleLinkGithub = async () => {
-    const result = await refetch()
+    const result = await refetch();
     if (result.data?.url) {
-      window.location.href = result.data.url
+      window.location.href = result.data.url;
     }
-  }
+  };
 
   return (
     <div className='profile'>
