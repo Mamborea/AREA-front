@@ -54,12 +54,12 @@ export function GitHub() {
       console.error('Failed to create webhook:', err)
     }
   }
-  
+
   const toggleEvent = (event: string) => {
     setWebhookEvents((prev) =>
       prev.includes(event) ? prev.filter((e) => e !== event) : [...prev, event]
-    )
-  }
+    );
+  };
 
   if (isLoadingRepos) {
     return <div className="loading">Loading repositories...</div>
@@ -67,39 +67,47 @@ export function GitHub() {
 
   if (reposError && repositories.length === 0) {
     return (
-      <div className="github-page">
+      <div className='github-page'>
         <h1>GitHub Integration</h1>
         <div className="error-message">Failed to load repositories. Make sure your GitHub account is linked.</div>
         <p>Please link your GitHub account from your profile page.</p>
       </div>
-    )
+    );
   }
 
   return (
-    <div className="github-page">
+    <div className='github-page'>
       <h1>GitHub Integration</h1>
 
-      <div className="github-content">
-        <div className="repositories-section">
+      <div className='github-content'>
+        <div className='repositories-section'>
           <h2>Your Repositories</h2>
-          <ul className="repo-list">
+          <ul className='repo-list'>
             {repositories.map((repo) => (
-              <li
-                key={repo.id}
-                className={`repo-item ${selectedRepo?.id === repo.id ? 'selected' : ''}`}
-                onClick={() => handleSelectRepo(repo)}
-              >
-                <span className="repo-name">{repo.full_name}</span>
-                {repo.private && <span className="badge private">Private</span>}
+              <li key={repo.id}>
+                <button
+                  type='button'
+                  className={`repo-item ${selectedRepo?.id === repo.id ? 'selected' : ''}`}
+                  onClick={() => handleSelectRepo(repo)}
+                >
+                  <span className='repo-name'>{repo.full_name}</span>
+                  {repo.private && (
+                    <span className='badge private'>Private</span>
+                  )}
+                </button>
               </li>
             ))}
           </ul>
         </div>
 
         {selectedRepo && (
-          <div className="webhooks-section">
+          <div className='webhooks-section'>
             <h2>Webhooks for {selectedRepo.full_name}</h2>
-            <button onClick={() => setShowCreateForm(true)} className="btn-primary">
+            <button
+              type='button'
+              onClick={() => setShowCreateForm(true)}
+              className='btn-primary'
+            >
               Create Webhook
             </button>
 
@@ -120,10 +128,11 @@ export function GitHub() {
                 <div className="form-group">
                   <label>Secret (optional)</label>
                   <input
-                    type="text"
+                    id='webhook-secret'
+                    type='text'
                     value={webhookSecret}
                     onChange={(e) => setWebhookSecret(e.target.value)}
-                    placeholder="Webhook secret"
+                    placeholder='Webhook secret'
                   />
                 </div>
                 <div className="form-group">
@@ -132,7 +141,7 @@ export function GitHub() {
                     {['push', 'pull_request', 'issues', 'create', 'delete', 'release'].map((event) => (
                       <label key={event} className="checkbox-label">
                         <input
-                          type="checkbox"
+                          type='checkbox'
                           checked={webhookEvents.includes(event)}
                           onChange={() => toggleEvent(event)}
                         />
@@ -152,21 +161,23 @@ export function GitHub() {
               </form>
             )}
 
-            <ul className="webhook-list">
+            <ul className='webhook-list'>
               {webhooks.length === 0 ? (
-                <li className="no-webhooks">No webhooks configured</li>
+                <li className='no-webhooks'>No webhooks configured</li>
               ) : (
                 webhooks.map((webhook) => (
-                  <li key={webhook.id} className="webhook-item">
-                    <div className="webhook-info">
-                      <span className="webhook-url">{webhook.config.url}</span>
-                      <span className={`badge ${webhook.active ? 'active' : 'inactive'}`}>
+                  <li key={webhook.id} className='webhook-item'>
+                    <div className='webhook-info'>
+                      <span className='webhook-url'>{webhook.config.url}</span>
+                      <span
+                        className={`badge ${webhook.active ? 'active' : 'inactive'}`}
+                      >
                         {webhook.active ? 'Active' : 'Inactive'}
                       </span>
                     </div>
-                    <div className="webhook-events">
+                    <div className='webhook-events'>
                       {webhook.events.map((event) => (
-                        <span key={event} className="event-badge">
+                        <span key={event} className='event-badge'>
                           {event}
                         </span>
                       ))}
@@ -179,5 +190,5 @@ export function GitHub() {
         )}
       </div>
     </div>
-  )
+  );
 }

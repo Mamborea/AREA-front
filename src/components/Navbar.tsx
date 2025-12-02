@@ -12,27 +12,27 @@ export function Navbar() {
   }
 
   return (
-    <nav className="navbar">
-      <div className="navbar-brand">
-        <Link to="/">AREA</Link>
+    <nav className='navbar'>
+      <div className='navbar-brand'>
+        <Link to='/'>AREA</Link>
       </div>
       <div className="navbar-menu">
         {isAuthenticated ? (
           <>
-            <Link to="/dashboard">Dashboard</Link>
-            <Link to="/github">GitHub</Link>
-            <Link to="/profile">Profile</Link>
-            <button onClick={handleLogout} className="btn-logout">
+            <Link to='/dashboard'>Dashboard</Link>
+            <Link to='/github'>GitHub</Link>
+            <Link to='/profile'>Profile</Link>
+            <button type='button' onClick={handleLogout} className='btn-logout'>
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link to="/login">Login</Link>
-            <Link to="/register">Register</Link>
+            <Link to='/login'>Login</Link>
+            <Link to='/register'>Register</Link>
           </>
         )}
       </div>
     </nav>
-  )
+  );
 }

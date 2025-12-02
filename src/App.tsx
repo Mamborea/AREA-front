@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { useAppSelector, useGetProfileQuery, store } from 'shared-redux/web'
+import { useAppSelector, useGetProfileQuery } from 'shared-redux/web'
 import { Navbar } from './components'
 import { Login, Register, Dashboard, Profile, GitHub } from './pages'
 import './App.css'
@@ -42,4 +42,4 @@ function App() {
   )
 }
 
-export default App
+export default App;

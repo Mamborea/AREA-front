@@ -5,6 +5,7 @@ import { store } from 'shared-redux/web'
 import App from './App.tsx'
 import './index.css'
 
+// biome-ignore lint/style/noNonNullAssertion: "Disabled"
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <Provider store={store}>
