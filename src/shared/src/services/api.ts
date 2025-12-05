@@ -9,9 +9,17 @@ import type {
   Webhook,
 } from '../types';
 
+// Define a type for the Microsoft subscription for clarity
+export interface MicrosoftSubscription {
+  id: string;
+  resource: string;
+  changeType: string;
+  clientState: string;
+  expirationDateTime: string;
+}
+
 export const apiSlice = createApi({
   reducerPath: 'api',
-  // Allow both mobile and web to use the redux
   baseQuery: async (args, api, extraOptions) => {
     const baseUrl = (api.getState() as RootState).config.baseUrl;
     const rawBaseQuery = fetchBaseQuery({
@@ -26,8 +34,9 @@ export const apiSlice = createApi({
     });
     return rawBaseQuery(args, api, extraOptions);
   },
-  tagTypes: ['User', 'Repos', 'Webhooks'],
+  tagTypes: ['User', 'Repos', 'Webhooks', 'MicrosoftSubscriptions'],
   endpoints: (builder) => ({
+    // ... existing endpoints
     login: builder.mutation<
       ApiAuthResponse,
       { email: string; password: string }
@@ -58,8 +67,35 @@ export const apiSlice = createApi({
       providesTags: ['User'],
     }),
     getGithubAuthUrl: builder.query<{ url: string }, void>({
-      query: () => '/auth/github',
+      query: () => ({
+        url: '/auth/github/url',
+        responseHandler: (response) => response.text(),
+      }),
+      transformResponse: (response: string) => ({ url: response }),
     }),
+    validateGithub: builder.mutation<{ success: boolean }, { code: string }>({
+      query: ({ code }) => ({
+        url: '/auth/github/validate',
+        method: 'POST',
+        body: { code },
+      }),
+    }),
+    getMicrosoftAuthUrl: builder.query<{ url: string }, void>({
+      query: () => ({
+        url: '/auth/microsoft/url',
+        responseHandler: (response) => response.text(),
+      }),
+      transformResponse: (response: string) => ({ url: response }),
+    }),
+    validateMicrosoft: builder.mutation<{ success: boolean }, { code: string }>(
+      {
+        query: ({ code }) => ({
+          url: '/auth/microsoft/validate',
+          method: 'POST',
+          body: { code },
+        }),
+      }
+    ),
     listRepositories: builder.query<Repository[], void>({
       query: () => '/github/repositories',
       providesTags: ['Repos'],
@@ -81,6 +117,29 @@ export const apiSlice = createApi({
         { type: 'Webhooks', id: dto.repo },
       ],
     }),
+    listMicrosoftWebhooks: builder.query<MicrosoftSubscription[], void>({
+      query: () => '/microsoft/webhooks',
+      providesTags: ['MicrosoftSubscriptions'],
+      refetchOnMountOrArgChange: true,
+    }),
+    createMicrosoftSubscription: builder.mutation<
+      MicrosoftSubscription,
+      { resource: string; changeType: string }
+    >({
+      query: (dto) => ({
+        url: '/microsoft/create-webhook',
+        method: 'POST',
+        body: dto,
+      }),
+      invalidatesTags: ['MicrosoftSubscriptions'],
+    }),
+    deleteMicrosoftSubscription: builder.mutation<void, { id: string }>({
+      query: ({ id }) => ({
+        url: `/microsoft/webhook?id=${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['MicrosoftSubscriptions'],
+    }),
   }),
 });
 
@@ -89,7 +148,13 @@ export const {
   useRegisterMutation,
   useGetProfileQuery,
   useGetGithubAuthUrlQuery,
+  useValidateGithubMutation,
+  useGetMicrosoftAuthUrlQuery,
+  useValidateMicrosoftMutation,
   useListRepositoriesQuery,
   useListWebhooksQuery,
   useCreateWebhookMutation,
+  useListMicrosoftWebhooksQuery,
+  useCreateMicrosoftSubscriptionMutation,
+  useDeleteMicrosoftSubscriptionMutation,
 } = apiSlice;
