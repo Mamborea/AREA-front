@@ -4,19 +4,11 @@ import type { RootState } from '../store';
 import type {
   ApiAuthResponse,
   CreateWebhookDto,
+  MicrosoftSubscription,
   Repository,
   User,
   Webhook,
 } from '../types';
-
-// Define a type for the Microsoft subscription for clarity
-export interface MicrosoftSubscription {
-  id: string;
-  resource: string;
-  changeType: string;
-  clientState: string;
-  expirationDateTime: string;
-}
 
 export const apiSlice = createApi({
   reducerPath: 'api',
