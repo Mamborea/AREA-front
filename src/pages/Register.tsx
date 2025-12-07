@@ -21,10 +21,12 @@ export function Register() {
     }
 
     try {
-      await register({ name, email, password }).unwrap();
-      navigate('/login', {
-        state: { message: 'Registration successful! Please login.' },
-      });
+      const data = await register({ name, email, password }).unwrap();
+      if (data.token) {
+        navigate('/dashboard');
+      } else {
+        setErrorMessage('Failed to get authentication token.');
+      }
     } catch (err) {
       const apiError = err as { data?: { message: string } };
       const message = apiError.data?.message || 'An unexpected error occurred.';

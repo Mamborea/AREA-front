@@ -44,7 +44,7 @@ export const apiSlice = createApi({
       invalidatesTags: ['User'],
     }),
     register: builder.mutation<
-      User,
+      { id: number; email: string; name: string; token: string },
       { email: string; password: string; name: string }
     >({
       query: (userInfo) => ({
@@ -52,6 +52,10 @@ export const apiSlice = createApi({
         method: 'POST',
         body: userInfo,
       }),
+      async onQueryStarted(args, { dispatch, queryFulfilled }) {
+        const { data } = await queryFulfilled;
+        dispatch(persistToken(data.token));
+      },
     }),
     getProfile: builder.query<User, void>({
       query: () => '/auth/me',
