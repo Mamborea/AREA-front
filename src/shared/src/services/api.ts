@@ -13,7 +13,6 @@ import type {
 
 export const apiSlice = createApi({
   reducerPath: 'api',
-  // Allow both mobile and web to use the redux
   baseQuery: async (args, api, extraOptions) => {
     const baseUrl = (api.getState() as RootState).config.baseUrl;
     const rawBaseQuery = fetchBaseQuery({
@@ -28,7 +27,7 @@ export const apiSlice = createApi({
     });
     return rawBaseQuery(args, api, extraOptions);
   },
-  tagTypes: ['User', 'Repos', 'Webhooks'],
+  tagTypes: ['User', 'Repos', 'Webhooks', 'Reactions'],
   endpoints: (builder) => ({
     login: builder.mutation<
       ApiAuthResponse,
@@ -107,6 +106,11 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['Reactions'],
     }),
+
+    listUserWebhooks: builder.query<Webhook[], void>({
+      query: () => '/users/webhooks',
+      providesTags: ['Webhooks'],
+    }),
   }),
 });
 
@@ -121,4 +125,5 @@ export const {
   useListReactionsQuery,
   useCreateReactionMutation,
   useDeleteReactionMutation,
+  useListUserWebhooksQuery,
 } = apiSlice;

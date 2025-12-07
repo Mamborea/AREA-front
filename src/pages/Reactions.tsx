@@ -3,20 +3,20 @@ import {
   useCreateReactionMutation,
   useDeleteReactionMutation,
   useListReactionsQuery,
-  useListWebhooksQuery,
+  useListUserWebhooksQuery,
 } from '../shared/src/web';
 
-// interface Reaction {
-//   id: number;
-//   hookId: number;
-//   reactionType: number;
-//   config: {
-//     to?: string;
-//     subject?: string;
-//     body?: string;
-//     [key: string]: any;
-//   };
-// }
+interface Reaction {
+  id: number;
+  hookId: number;
+  reactionType: number;
+  config: {
+    to?: string;
+    subject?: string;
+    body?: string;
+    [key: string]: any;
+  };
+}
 
 const REACTION_TYPES = [
   {
@@ -53,10 +53,7 @@ export function Reactions() {
   });
 
   const { data: webhooks = [], isLoading: isLoadingWebhooks } =
-    useListWebhooksQuery({
-      owner: '',
-      repo: '',
-    });
+    useListUserWebhooksQuery();
   const { data: reactions = [], isLoading: isLoadingReactions } =
     useListReactionsQuery();
   const [createReaction, { isLoading: isCreatingReaction }] =
