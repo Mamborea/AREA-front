@@ -1,7 +1,14 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useAppSelector, useGetProfileQuery } from 'shared-redux/web';
 import { Navbar } from './components';
-import { Dashboard, GitHub, Login, Profile, Register } from './pages';
+import {
+  Dashboard,
+  GitHub,
+  Login,
+  Profile,
+  Reactions,
+  Register,
+} from './pages';
 import './App.css';
 
 function App() {
@@ -26,6 +33,7 @@ function App() {
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/github' element={<GitHub />} />
+                <Route path='/reactions' element={<Reactions />} />
                 <Route
                   path='*'
                   element={<Navigate to='/dashboard' replace />}

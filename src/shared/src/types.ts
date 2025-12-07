@@ -54,3 +54,34 @@ export interface CreateWebhookDto {
   events: string[];
   secret?: string;
 }
+
+export interface Reaction {
+  id: number;
+  hookId: number;
+  reactionType: number;
+  config: {
+    to?: string;
+    subject?: string;
+    body?: string;
+    webhookUrl?: string;
+    message?: string;
+    url?: string;
+    [key: string]: any;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateReactionDto {
+  hookId: number;
+  reactionType: number;
+  config: {
+    to?: string;
+    subject?: string;
+    body?: string;
+    webhookUrl?: string;
+    message?: string;
+    url?: string;
+    [key: string]: any;
+  };
+}

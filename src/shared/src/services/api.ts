@@ -3,7 +3,9 @@ import { persistToken } from '../features/authSlice';
 import type { RootState } from '../store';
 import type {
   ApiAuthResponse,
+  CreateReactionDto,
   CreateWebhookDto,
+  Reaction,
   Repository,
   User,
   Webhook,
@@ -85,6 +87,26 @@ export const apiSlice = createApi({
         { type: 'Webhooks', id: dto.repo },
       ],
     }),
+
+    listReactions: builder.query<Reaction[], void>({
+      query: () => '/reactions',
+      providesTags: ['Reactions'],
+    }),
+    createReaction: builder.mutation<Reaction, CreateReactionDto>({
+      query: (dto) => ({
+        url: '/reactions',
+        method: 'POST',
+        body: dto,
+      }),
+      invalidatesTags: ['Reactions'],
+    }),
+    deleteReaction: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/reactions/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Reactions'],
+    }),
   }),
 });
 
@@ -96,4 +118,7 @@ export const {
   useListRepositoriesQuery,
   useListWebhooksQuery,
   useCreateWebhookMutation,
+  useListReactionsQuery,
+  useCreateReactionMutation,
+  useDeleteReactionMutation,
 } = apiSlice;
