@@ -54,3 +54,13 @@ export interface CreateWebhookDto {
   events: string[];
   secret?: string;
 }
+
+//Microsoft type
+
+export interface MicrosoftSubscription {
+  id: string;
+  resource: string;
+  changeType: string;
+  clientState: string;
+  expirationDateTime: string;
+}

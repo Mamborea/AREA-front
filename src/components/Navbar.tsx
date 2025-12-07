@@ -21,6 +21,7 @@ export function Navbar() {
           <>
             <Link to='/dashboard'>Dashboard</Link>
             <Link to='/github'>GitHub</Link>
+            <Link to='/microsoft'>Microsoft</Link>
             <Link to='/profile'>Profile</Link>
             <button type='button' onClick={handleLogout} className='btn-logout'>
               Logout

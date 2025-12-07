@@ -8,10 +8,18 @@ import type { ApiAuthResponse, AuthState, User } from '../types';
 
 export const persistToken = createAsyncThunk(
   'auth/persistToken',
-  async (token: string, { extra }) => {
-    const storage = (extra as { storage: TokenStorage }).storage;
-    await storage.setToken(token);
-    return token;
+  async (token: string, { extra, rejectWithValue }) => {
+    try {
+      const storage = (extra as { storage: TokenStorage }).storage;
+      await storage.setToken(token);
+      return token;
+    } catch (error) {
+      console.error('Failed to persist token to storage:', error);
+      console.warn(
+        'Token persistence failed. You may be logged out on refresh. Check storage quota and permissions.'
+      );
+      return rejectWithValue(token);
+    }
   }
 );
 
@@ -20,8 +28,14 @@ export const persistToken = createAsyncThunk(
 export const clearToken = createAsyncThunk(
   'auth/clearToken',
   async (_, { extra }) => {
-    const storage = (extra as { storage: TokenStorage }).storage;
-    await storage.removeToken();
+    try {
+      const storage = (extra as { storage: TokenStorage }).storage;
+      await storage.removeToken();
+      return null;
+    } catch (error) {
+      console.error('Failed to clear token from storage:', error);
+      return null;
+    }
   }
 );
 
@@ -30,8 +44,13 @@ export const clearToken = createAsyncThunk(
 export const loadToken = createAsyncThunk(
   'auth/loadToken',
   async (_, { extra }) => {
-    const storage = (extra as { storage: TokenStorage }).storage;
-    return await storage.getToken();
+    try {
+      const storage = (extra as { storage: TokenStorage }).storage;
+      return await storage.getToken();
+    } catch (error) {
+      console.error('Failed to load token from storage:', error);
+      return null;
+    }
   }
 );
 
@@ -68,12 +87,21 @@ const authSlice = createSlice({
         }
       )
       .addMatcher(
-        isAnyOf(persistToken.fulfilled, loadToken.fulfilled),
+        isAnyOf(
+          persistToken.fulfilled,
+          loadToken.fulfilled,
+          clearToken.fulfilled
+        ),
         (state, action: PayloadAction<string | null>) => {
           state.token = action.payload;
           state.isAuthenticated = !!action.payload;
         }
-      );
+      )
+      .addMatcher(isAnyOf(persistToken.rejected), (state, action) => {
+        const token = action.meta.arg as string;
+        state.token = token;
+        state.isAuthenticated = !!token;
+      });
   },
 });
 
