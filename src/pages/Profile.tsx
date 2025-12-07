@@ -7,13 +7,24 @@ import {
 } from '../shared/src/web';
 
 function GitHubLinker() {
-  const { refetch: getAuthUrl } = useGetGithubAuthUrlQuery();
+  const { refetch: getAuthUrl } = useGetGithubAuthUrlQuery(undefined);
   const { isLoading, isSuccess, isError } = useListRepositoriesQuery();
 
   const handleLinkGithub = async () => {
-    const result = await getAuthUrl();
-    if (result.data?.url) {
-      window.location.href = result.data.url;
+    try {
+      const result = await getAuthUrl();
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else if (result.error) {
+        console.error('Failed to fetch GitHub auth URL:', result.error);
+        alert('Failed to connect to GitHub. Please try again later.');
+      } else {
+        console.warn('No URL returned from GitHub auth endpoint');
+        alert('Unable to initiate GitHub authentication. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during GitHub auth:', error);
+      alert('An unexpected error occurred. Please try again.');
     }
   };
 
@@ -47,13 +58,24 @@ function GitHubLinker() {
 }
 
 function MicrosoftLinker() {
-  const { refetch: getAuthUrl } = useGetMicrosoftAuthUrlQuery();
+  const { refetch: getAuthUrl } = useGetMicrosoftAuthUrlQuery(undefined);
   const { isLoading, isSuccess, isError } = useListMicrosoftWebhooksQuery();
 
   const handleLinkMicrosoft = async () => {
-    const result = await getAuthUrl();
-    if (result.data?.url) {
-      window.location.href = result.data.url;
+    try {
+      const result = await getAuthUrl();
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else if (result.error) {
+        console.error('Failed to fetch Microsoft auth URL:', result.error);
+        alert('Failed to connect to Microsoft. Please try again later.');
+      } else {
+        console.warn('No URL returned from Microsoft auth endpoint');
+        alert('Unable to initiate Microsoft authentication. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during Microsoft auth:', error);
+      alert('An unexpected error occurred. Please try again.');
     }
   };
 

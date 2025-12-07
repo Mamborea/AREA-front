@@ -3,7 +3,7 @@ import {
   isRejectedWithValue,
   type Middleware,
 } from '@reduxjs/toolkit';
-import authReducer, { clearToken } from '../features/authSlice';
+import authReducer, { clearToken, logout } from '../features/authSlice';
 import configReducer from '../features/configSlice';
 import { apiSlice } from '../services/api';
 import type { TokenStorage } from '../storage';
@@ -19,10 +19,11 @@ const rtkQueryErrorLogger: Middleware = () => (next) => (action) => {
 
 // Auto clear token on logout
 const logoutMiddleware: Middleware = (store) => (next) => (action) => {
-  if (action.type === 'auth/logout') {
-    store.dispatch(clearToken());
+  const result = next(action);
+  if (logout.match(action)) {
+    (store.dispatch as unknown as AppDispatch)(clearToken());
   }
-  return next(action);
+  return result;
 };
 
 // Redux Store (will break the app easily on modification)

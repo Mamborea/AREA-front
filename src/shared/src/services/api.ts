@@ -10,25 +10,40 @@ import type {
   Webhook,
 } from '../types';
 
+const baseQueryCache = new Map<string, ReturnType<typeof fetchBaseQuery>>();
+
+const getCachedBaseQuery = (baseUrl: string) => {
+  if (!baseQueryCache.has(baseUrl)) {
+    baseQueryCache.set(
+      baseUrl,
+      fetchBaseQuery({
+        baseUrl,
+        prepareHeaders: (headers, { getState }) => {
+          const token = (getState() as RootState).auth.token;
+          if (token) {
+            headers.set('Authorization', `Bearer ${token}`);
+          }
+          return headers;
+        },
+      })
+    );
+  }
+  const cachedQuery = baseQueryCache.get(baseUrl);
+  if (!cachedQuery) {
+    throw new Error(`Failed to get cached base query for URL: ${baseUrl}`);
+  }
+  return cachedQuery;
+};
+
 export const apiSlice = createApi({
   reducerPath: 'api',
   baseQuery: async (args, api, extraOptions) => {
     const baseUrl = (api.getState() as RootState).config.baseUrl;
-    const rawBaseQuery = fetchBaseQuery({
-      baseUrl,
-      prepareHeaders: (headers, { getState }) => {
-        const token = (getState() as RootState).auth.token;
-        if (token) {
-          headers.set('Authorization', `Bearer ${token}`);
-        }
-        return headers;
-      },
-    });
-    return rawBaseQuery(args, api, extraOptions);
+    const cachedBaseQuery = getCachedBaseQuery(baseUrl);
+    return cachedBaseQuery(args, api, extraOptions);
   },
   tagTypes: ['User', 'Repos', 'Webhooks', 'MicrosoftSubscriptions'],
   endpoints: (builder) => ({
-    // ... existing endpoints
     login: builder.mutation<
       ApiAuthResponse,
       { email: string; password: string }
@@ -39,8 +54,12 @@ export const apiSlice = createApi({
         body: credentials,
       }),
       async onQueryStarted(args, { dispatch, queryFulfilled }) {
-        const { data } = await queryFulfilled;
-        dispatch(persistToken(data.access_token));
+        try {
+          const { data } = await queryFulfilled;
+          dispatch(persistToken(data.access_token));
+        } catch (error) {
+          console.error('Login failed:', error);
+        }
       },
       invalidatesTags: ['User'],
     }),

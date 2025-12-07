@@ -1,5 +1,11 @@
+import { useEffect } from 'react';
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
-import { useAppSelector, useGetProfileQuery } from 'shared-redux/web';
+import {
+  logout,
+  useAppDispatch,
+  useAppSelector,
+  useGetProfileQuery,
+} from 'shared-redux/web';
 import { Navbar } from './components';
 import {
   Dashboard,
@@ -15,10 +21,23 @@ import './App.css';
 
 function App() {
   const { isAuthenticated, token } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
 
-  const { isLoading } = useGetProfileQuery(undefined, {
+  const { isLoading, error } = useGetProfileQuery(undefined, {
     skip: !token,
   });
+
+  // Handle expired or invalid tokens
+  useEffect(() => {
+    if (
+      error &&
+      'status' in error &&
+      (error.status === 401 || error.status === 403)
+    ) {
+      console.warn('Authentication failed, logging out...');
+      dispatch(logout());
+    }
+  }, [error, dispatch]);
 
   if (isLoading) {
     return <div>Loading...</div>;
