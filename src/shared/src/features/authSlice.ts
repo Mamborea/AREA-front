@@ -18,8 +18,6 @@ export const persistToken = createAsyncThunk(
       console.warn(
         'Token persistence failed. You may be logged out on refresh. Check storage quota and permissions.'
       );
-      // Return the token anyway so the user can continue their session
-      // They'll just be logged out on refresh
       return rejectWithValue(token);
     }
   }
@@ -36,7 +34,6 @@ export const clearToken = createAsyncThunk(
       return null;
     } catch (error) {
       console.error('Failed to clear token from storage:', error);
-      // Continue anyway - we'll clear the in-memory state
       return null;
     }
   }
@@ -74,8 +71,6 @@ const authSlice = createSlice({
     },
   },
   // These reducers react to actions dispatched from other parts of the application
-  // NOTE: Circular dependency with apiSlice - both import each other.
-  // This works but should be refactored to extract token persistence into a separate module.
   extraReducers: (builder) => {
     builder
       .addMatcher(
@@ -91,7 +86,6 @@ const authSlice = createSlice({
           state.isAuthenticated = !!state.token;
         }
       )
-      // Handle token state changes from all token-related actions
       .addMatcher(
         isAnyOf(
           persistToken.fulfilled,
@@ -103,9 +97,7 @@ const authSlice = createSlice({
           state.isAuthenticated = !!action.payload;
         }
       )
-      // Handle persistToken rejection - keep token in memory but warn user
       .addMatcher(isAnyOf(persistToken.rejected), (state, action) => {
-        // Token is in the meta.arg, use it for the session
         const token = action.meta.arg as string;
         state.token = token;
         state.isAuthenticated = !!token;

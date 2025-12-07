@@ -12,7 +12,6 @@ export default defineConfig(({ mode }) => {
             alias: {
                 'shared-redux': path.resolve(__dirname, 'src/shared/src'),
             },
-            // Force single React instance to prevent "Invalid hook call" errors
             dedupe: ['react', 'react-dom'],
         },
         server: {
