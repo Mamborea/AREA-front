@@ -39,7 +39,10 @@ export function MicrosoftCallback() {
         setStatus('Success! Redirecting...');
       } catch (error) {
         // Account might still be linked despite error, redirect anyway
-        console.warn('Microsoft validation error (account may still be linked):', error);
+        console.warn(
+          'Microsoft validation error (account may still be linked):',
+          error
+        );
         setStatus('Linking complete. Redirecting...');
       }
       // Always redirect after a delay

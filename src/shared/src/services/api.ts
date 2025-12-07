@@ -58,7 +58,10 @@ export const apiSlice = createApi({
       query: () => '/auth/me',
       providesTags: ['User'],
     }),
-    getGithubAuthUrl: builder.query<{ url: string }, { mobile?: boolean } | void>({
+    getGithubAuthUrl: builder.query<
+      { url: string },
+      { mobile?: boolean } | undefined
+    >({
       query: (args) => ({
         url: '/auth/github/url',
         params: args?.mobile ? { mobile: 'true' } : undefined,
@@ -73,7 +76,10 @@ export const apiSlice = createApi({
         body: { code },
       }),
     }),
-    getMicrosoftAuthUrl: builder.query<{ url: string }, { mobile?: boolean } | void>({
+    getMicrosoftAuthUrl: builder.query<
+      { url: string },
+      { mobile?: boolean } | undefined
+    >({
       query: (args) => ({
         url: '/auth/microsoft/url',
         params: args?.mobile ? { mobile: 'true' } : undefined,

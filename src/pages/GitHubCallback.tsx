@@ -40,7 +40,7 @@ export function GitHubCallback() {
         setTimeout(() => {
           navigate('/profile');
         }, 1000);
-      } catch (error) {
+      } catch (_error) {
         setStatus('Failed to link GitHub account. See console for details.');
       }
     };
