@@ -26,7 +26,7 @@ export const apiSlice = createApi({
     });
     return rawBaseQuery(args, api, extraOptions);
   },
-  tagTypes: ['User', 'Repos', 'Webhooks'],
+  tagTypes: ['User', 'Repos', 'Webhooks', 'YoutubeChannels', 'YoutubeWebhooks'],
   endpoints: (builder) => ({
     login: builder.mutation<
       ApiAuthResponse,
@@ -85,6 +85,33 @@ export const apiSlice = createApi({
         { type: 'Webhooks', id: dto.repo },
       ],
     }),
+
+    listYoutubeChannels: builder.query<{ id: string; title: string }[], void>({
+      query: () => '/youtube/channels',
+      providesTags: ['YoutubeChannels'],
+    }),
+    listYoutubeWebhooks: builder.query<
+      { id: string; webhookUrl: string; active: boolean }[],
+      { channelId: string }
+    >({
+      query: ({ channelId }) => `/youtube/webhooks?channelId=${channelId}`,
+      providesTags: (result, error, { channelId }) => [
+        { type: 'YoutubeWebhooks', id: channelId },
+      ],
+    }),
+    createYoutubeWebhook: builder.mutation<
+      { id: string; webhookUrl: string; active: boolean },
+      { channelId: string; webhookUrl: string }
+    >({
+      query: (dto) => ({
+        url: '/youtube/create-webhook',
+        method: 'POST',
+        body: dto,
+      }),
+      invalidatesTags: (result, error, dto) => [
+        { type: 'YoutubeWebhooks', id: dto.channelId },
+      ],
+    }),
   }),
 });
 
@@ -96,4 +123,7 @@ export const {
   useListRepositoriesQuery,
   useListWebhooksQuery,
   useCreateWebhookMutation,
+  useListYoutubeChannelsQuery,
+  useListYoutubeWebhooksQuery,
+  useCreateYoutubeWebhookMutation,
 } = apiSlice;

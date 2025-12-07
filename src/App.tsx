@@ -26,6 +26,7 @@ function App() {
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/profile' element={<Profile />} />
                 <Route path='/github' element={<GitHub />} />
+                <Route path='/youtube' element={<Youtube />} />
                 <Route
                   path='*'
                   element={<Navigate to='/dashboard' replace />}
