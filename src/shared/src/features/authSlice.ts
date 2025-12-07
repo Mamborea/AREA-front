@@ -54,6 +54,12 @@ const authSlice = createSlice({
   // These reducers react to actions dispatched from other parts of the application
   extraReducers: (builder) => {
     builder
+      // Clear API cache when logging out
+      .addCase(clearToken.fulfilled, (state) => {
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+      })
       .addMatcher(
         apiSlice.endpoints.login.matchFulfilled,
         (state, { payload }: PayloadAction<ApiAuthResponse>) => {

@@ -58,9 +58,10 @@ export const apiSlice = createApi({
       query: () => '/auth/me',
       providesTags: ['User'],
     }),
-    getGithubAuthUrl: builder.query<{ url: string }, void>({
-      query: () => ({
+    getGithubAuthUrl: builder.query<{ url: string }, { mobile?: boolean } | void>({
+      query: (args) => ({
         url: '/auth/github/url',
+        params: args?.mobile ? { mobile: 'true' } : undefined,
         responseHandler: (response) => response.text(),
       }),
       transformResponse: (response: string) => ({ url: response }),
@@ -72,9 +73,10 @@ export const apiSlice = createApi({
         body: { code },
       }),
     }),
-    getMicrosoftAuthUrl: builder.query<{ url: string }, void>({
-      query: () => ({
+    getMicrosoftAuthUrl: builder.query<{ url: string }, { mobile?: boolean } | void>({
+      query: (args) => ({
         url: '/auth/microsoft/url',
+        params: args?.mobile ? { mobile: 'true' } : undefined,
         responseHandler: (response) => response.text(),
       }),
       transformResponse: (response: string) => ({ url: response }),
@@ -140,8 +142,10 @@ export const {
   useRegisterMutation,
   useGetProfileQuery,
   useGetGithubAuthUrlQuery,
+  useLazyGetGithubAuthUrlQuery,
   useValidateGithubMutation,
   useGetMicrosoftAuthUrlQuery,
+  useLazyGetMicrosoftAuthUrlQuery,
   useValidateMicrosoftMutation,
   useListRepositoriesQuery,
   useListWebhooksQuery,
