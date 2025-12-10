@@ -164,8 +164,6 @@ export const apiSlice = createApi({
       invalidatesTags: ['MicrosoftSubscriptions'],
     }),
 
-
-
     ValidateDiscord: builder.mutation<{ success: boolean }, { code: string }>({
       query: ({ code }) => ({
         url: '/auth/discord/validate',
@@ -185,18 +183,13 @@ export const apiSlice = createApi({
       }),
       transformResponse: (response: string) => ({ url: response }),
     }),
-    listDiscordWebhooks: builder.query<
-      { webhooks: any[] },
-      void
-    >({
+    listDiscordWebhooks: builder.query<{ webhooks: any[] }, void>({
       query: () => ({
         url: '/integrations/discord/webhooks',
       }),
     }),
-
   }),
 });
-
 
 export const {
   useLoginMutation,
