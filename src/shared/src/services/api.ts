@@ -163,8 +163,40 @@ export const apiSlice = createApi({
       }),
       invalidatesTags: ['MicrosoftSubscriptions'],
     }),
+
+
+
+    ValidateDiscord: builder.mutation<{ success: boolean }, { code: string }>({
+      query: ({ code }) => ({
+        url: '/auth/discord/validate',
+        method: 'POST',
+        body: { code },
+      }),
+    }),
+
+    getDiscordAuthUrl: builder.query<
+      { url: string },
+      { mobile?: boolean } | undefined
+    >({
+      query: (args) => ({
+        url: '/auth/discord/url',
+        params: args?.mobile ? { mobile: 'true' } : undefined,
+        responseHandler: (response) => response.text(),
+      }),
+      transformResponse: (response: string) => ({ url: response }),
+    }),
+    listDiscordWebhooks: builder.query<
+      { webhooks: any[] },
+      void
+    >({
+      query: () => ({
+        url: '/integrations/discord/webhooks',
+      }),
+    }),
+
   }),
 });
+
 
 export const {
   useLoginMutation,
@@ -182,4 +214,8 @@ export const {
   useListMicrosoftWebhooksQuery,
   useCreateMicrosoftSubscriptionMutation,
   useDeleteMicrosoftSubscriptionMutation,
+
+  useValidateDiscordMutation,
+  useGetDiscordAuthUrlQuery,
+  useListDiscordWebhooksQuery,
 } = apiSlice;

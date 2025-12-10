@@ -1,4 +1,6 @@
 export { Dashboard } from './Dashboard';
+export { Discord } from './Discord';
+export { DiscordCallback } from './DiscordCallback';
 export { GitHub } from './GitHub';
 export { GitHubCallback } from './GitHubCallback';
 export { Login } from './Login';

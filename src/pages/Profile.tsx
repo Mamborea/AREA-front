@@ -1,7 +1,9 @@
 import {
   useAppSelector,
+  useGetDiscordAuthUrlQuery,
   useGetGithubAuthUrlQuery,
   useGetMicrosoftAuthUrlQuery,
+  useListDiscordWebhooksQuery,
   useListMicrosoftWebhooksQuery,
   useListRepositoriesQuery,
 } from '../shared/src/web';
@@ -113,6 +115,58 @@ function MicrosoftLinker() {
   return null;
 }
 
+function DiscordLinker() {
+  const { refetch: getAuthUrl } = useGetDiscordAuthUrlQuery(undefined);
+  const { isLoading, isSuccess, isError } = useListDiscordWebhooksQuery();
+
+  const handleLinkDiscord = async () => {
+    try {
+      const result = await getAuthUrl();
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else if (result.error) {
+        console.error('Failed to fetch Discord auth URL:', result.error);
+        alert('Failed to connect to Discord. Please try again later.');
+      } else {
+        console.warn('No URL returned from Discord auth endpoint');
+        alert('Unable to initiate Discord authentication. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during Discord auth:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  if (isLoading) {
+    return <div className='loading-spinner'>Loading...</div>;
+  }
+
+  if (isError) {
+    return (
+      <button type='button' onClick={handleLinkDiscord} className='btn-discord'>
+        Link Discord Account
+      </button>
+    );
+  }
+
+  if (isSuccess) {
+    return (
+      <div className='service-linked'>
+        <p className='linked-status'>✓ Discord Account Linked</p>
+        <button
+          type='button'
+          onClick={handleLinkDiscord}
+          className='btn-discord-change'
+        >
+          Change Account
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 export function Profile() {
   const { user } = useAppSelector((state) => state.auth);
 
@@ -138,6 +192,7 @@ export function Profile() {
           <h3>Connected Services</h3>
           <GitHubLinker />
           <MicrosoftLinker />
+          <DiscordLinker />
         </div>
       </div>
     </div>

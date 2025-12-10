@@ -9,6 +9,8 @@ import {
 import { Navbar } from './components';
 import {
   Dashboard,
+  Discord,
+  DiscordCallback,
   GitHub,
   GitHubCallback,
   Login,
@@ -53,8 +55,10 @@ function App() {
               <>
                 <Route path='/dashboard' element={<Dashboard />} />
                 <Route path='/profile' element={<Profile />} />
+                <Route path='/discord' element={<Discord />} />
                 <Route path='/github' element={<GitHub />} />
                 <Route path='/microsoft' element={<Microsoft />} />
+                <Route path='/discord/callback' element={<DiscordCallback />} />
                 <Route path='/github/callback' element={<GitHubCallback />} />
                 <Route
                   path='/microsoft/callback'
@@ -69,6 +73,7 @@ function App() {
               <>
                 <Route path='/login' element={<Login />} />
                 <Route path='/register' element={<Register />} />
+                <Route path='/discord/callback' element={<DiscordCallback />} />
                 <Route path='/github/callback' element={<GitHubCallback />} />
                 <Route
                   path='/microsoft/callback'
