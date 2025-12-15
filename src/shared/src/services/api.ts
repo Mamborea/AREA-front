@@ -185,7 +185,7 @@ export const apiSlice = createApi({
     }),
     listDiscordWebhooks: builder.query<{ webhooks: any[] }, void>({
       query: () => ({
-        url: '/integrations/discord/webhooks',
+        url: '/discord/webhooks',
       }),
     }),
   }),
