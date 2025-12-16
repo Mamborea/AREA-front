@@ -26,6 +26,14 @@ export function Register() {
       label: 'At least one special character',
       test: (pwd: string) => /[\W_]/.test(pwd),
     },
+    {
+      label: 'Must not include name',
+      test: (pwd: string) => {
+        if (!name) return true;
+        const regex = new RegExp(name, 'i');
+        return !regex.test(pwd);
+      },
+    },
   ];
 
   const passwordStrength = requirements.reduce(
@@ -49,8 +57,8 @@ export function Register() {
       return;
     }
 
-    if (passwordStrength < 5) {
-      setErrorMessage('Password must satisfied at least 5 criteria.');
+    if (passwordStrength < 6) {
+      setErrorMessage('Password must satisfied the 6 criteria.');
       return;
     }
 
@@ -112,7 +120,7 @@ export function Register() {
               required
             />
             <div className='password-requirements'>
-              <p>Password requirements:</p>
+              <p>Password requirements for your security:</p>
               <ul>
                 {requirements.map((req) => (
                   <li
