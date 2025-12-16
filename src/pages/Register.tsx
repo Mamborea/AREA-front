@@ -11,12 +11,51 @@ export function Register() {
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
 
+  const requirements = [
+    { label: 'At least 8 characters', test: (pwd: string) => pwd.length >= 8 },
+    {
+      label: 'At least one uppercase letter',
+      test: (pwd: string) => /[A-Z]/.test(pwd),
+    },
+    {
+      label: 'At least one lowercase letter',
+      test: (pwd: string) => /[a-z]/.test(pwd),
+    },
+    { label: 'At least one number', test: (pwd: string) => /[0-9]/.test(pwd) },
+    {
+      label: 'At least one special character',
+      test: (pwd: string) => /[\W_]/.test(pwd),
+    },
+  ];
+
+  const passwordStrength = requirements.reduce(
+    (score, req) => score + (req.test(password) ? 1 : 0),
+    0
+  );
+
+  const isEmailValid = (value: string) =>
+    value.length <= 254 &&
+    // /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]{1,63}(\.[a-zA-Z0-9-]{1,63})*\.[a-zA-Z]{2,63}$/.test(value); // strict
+    /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9]+(-[a-zA-Z0-9]+)*\.)+[a-zA-Z]{2,63}$/.test(
+      value
+    );
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
+    if (!isEmailValid(email)) {
+      setErrorMessage('Please enter a valid email address.');
+      return;
+    }
+
+    if (passwordStrength < 5) {
+      setErrorMessage('Password must satisfied at least 5 criteria.');
+      return;
+    }
+
     if (password !== confirmPassword) {
-      setErrorMessage('Passwords do not match');
+      setErrorMessage('Passwords do not match.');
       return;
     }
 
@@ -51,6 +90,7 @@ export function Register() {
               required
             />
           </div>
+
           <div className='form-group'>
             <label htmlFor='email'>Email</label>
             <input
@@ -61,6 +101,7 @@ export function Register() {
               required
             />
           </div>
+
           <div className='form-group'>
             <label htmlFor='password'>Password</label>
             <input
@@ -70,7 +111,21 @@ export function Register() {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
+            <div className='password-requirements'>
+              <p>Password requirements:</p>
+              <ul>
+                {requirements.map((req) => (
+                  <li
+                    key={req.label}
+                    style={{ color: req.test(password) ? 'green' : 'red' }}
+                  >
+                    {req.label}
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
+
           <div className='form-group'>
             <label htmlFor='confirmPassword'>Confirm Password</label>
             <input
@@ -81,10 +136,12 @@ export function Register() {
               required
             />
           </div>
+
           <button type='submit' className='btn-primary' disabled={isLoading}>
             {isLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
+
         <p className='auth-link'>
           Already have an account? <Link to='/login'>Login</Link>
         </p>
