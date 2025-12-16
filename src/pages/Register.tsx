@@ -1,4 +1,5 @@
 import { type FormEvent, useState } from 'react';
+import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useRegisterMutation } from '../shared/src/web';
 
@@ -10,6 +11,8 @@ export function Register() {
   const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
   const [register, { isLoading }] = useRegisterMutation();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const requirements = [
     { label: 'At least 8 characters', test: (pwd: string) => pwd.length >= 8 },
@@ -107,18 +110,42 @@ export function Register() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
+              style={{ paddingRight: '2rem' }}
             />
           </div>
 
           <div className='form-group'>
             <label htmlFor='password'>Password</label>
-            <input
-              type='password'
-              id='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                id='password'
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={{ paddingRight: '2rem' }}
+              />
+              <button
+                type='button'
+                aria-label='Show Password'
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.5rem',
+                  top: '52%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  background: 'none',
+                }}
+              >
+                {showPassword ? (
+                  <FaEyeSlash color='white' />
+                ) : (
+                  <FaEye color='white' />
+                )}
+              </button>
+            </div>
+
             <div className='password-requirements'>
               <p>Password requirements for your security:</p>
               <ul>
@@ -136,13 +163,35 @@ export function Register() {
 
           <div className='form-group'>
             <label htmlFor='confirmPassword'>Confirm Password</label>
-            <input
-              type='password'
-              id='confirmPassword'
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showConfirmPassword ? 'text' : 'password'}
+                id='confirmPassword'
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                style={{ paddingRight: '2rem' }}
+              />
+              <button
+                type='button'
+                aria-label='Show Password'
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '0.5rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  cursor: 'pointer',
+                  background: 'none',
+                }}
+              >
+                {showConfirmPassword ? (
+                  <FaEyeSlash color='white' />
+                ) : (
+                  <FaEye color='white' />
+                )}
+              </button>
+            </div>
           </div>
 
           <button type='submit' className='btn-primary' disabled={isLoading}>
