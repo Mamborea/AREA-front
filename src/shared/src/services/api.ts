@@ -164,11 +164,11 @@ export const apiSlice = createApi({
       invalidatesTags: ['MicrosoftSubscriptions'],
     }),
 
-    ValidateDiscord: builder.mutation<{ success: boolean }, { code: string }>({
-      query: ({ code }) => ({
+    ValidateDiscord: builder.mutation<{ success: boolean }, { code: string; state: string }>({
+      query: ({ code, state }) => ({
         url: '/auth/discord/validate',
         method: 'POST',
-        body: { code },
+        body: { code, state },
       }),
     }),
 
