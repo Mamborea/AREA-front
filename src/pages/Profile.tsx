@@ -1,16 +1,18 @@
 import {
   useAppSelector,
+  // useListDiscordWebhooksQuery,
+  // useListMicrosoftWebhooksQuery,
+  useConnectionQuery,
   useGetDiscordAuthUrlQuery,
   useGetGithubAuthUrlQuery,
   useGetMicrosoftAuthUrlQuery,
-  useListDiscordWebhooksQuery,
-  useListMicrosoftWebhooksQuery,
-  useListRepositoriesQuery,
 } from '../shared/src/web';
 
 function GitHubLinker() {
   const { refetch: getAuthUrl } = useGetGithubAuthUrlQuery(undefined);
-  const { isLoading, isSuccess, isError } = useListRepositoriesQuery();
+  const { data, isLoading, isError } = useConnectionQuery({
+    provider: 'github',
+  });
 
   const handleLinkGithub = async () => {
     try {
@@ -34,7 +36,7 @@ function GitHubLinker() {
     return <div className='loading-spinner'>Loading...</div>;
   }
 
-  if (isError) {
+  if (isError || !data?.connected) {
     return (
       <button type='button' onClick={handleLinkGithub} className='btn-github'>
         Link GitHub Account
@@ -42,7 +44,7 @@ function GitHubLinker() {
     );
   }
 
-  if (isSuccess) {
+  if (data.connected) {
     return (
       <div className='service-linked'>
         <p className='linked-status'>✓ GitHub Account Linked</p>
@@ -61,7 +63,9 @@ function GitHubLinker() {
 
 function MicrosoftLinker() {
   const { refetch: getAuthUrl } = useGetMicrosoftAuthUrlQuery(undefined);
-  const { isLoading, isSuccess, isError } = useListMicrosoftWebhooksQuery();
+  const { data, isLoading, isError } = useConnectionQuery({
+    provider: 'microsoft',
+  });
 
   const handleLinkMicrosoft = async () => {
     try {
@@ -85,7 +89,7 @@ function MicrosoftLinker() {
     return <div className='loading-spinner'>Loading...</div>;
   }
 
-  if (isError) {
+  if (isError || !data?.connected) {
     return (
       <button
         type='button'
@@ -97,7 +101,7 @@ function MicrosoftLinker() {
     );
   }
 
-  if (isSuccess) {
+  if (data.connected) {
     return (
       <div className='service-linked'>
         <p className='linked-status'>✓ Microsoft Account Linked</p>
@@ -117,7 +121,9 @@ function MicrosoftLinker() {
 
 function DiscordLinker() {
   const { refetch: getAuthUrl } = useGetDiscordAuthUrlQuery(undefined);
-  const { isLoading, isSuccess, isError } = useListDiscordWebhooksQuery();
+  const { data, isLoading, isError } = useConnectionQuery({
+    provider: 'discord',
+  });
 
   const handleLinkDiscord = async () => {
     try {
@@ -141,7 +147,7 @@ function DiscordLinker() {
     return <div className='loading-spinner'>Loading...</div>;
   }
 
-  if (isError) {
+  if (isError || !data?.connected) {
     return (
       <button type='button' onClick={handleLinkDiscord} className='btn-discord'>
         Link Discord Account
@@ -149,7 +155,7 @@ function DiscordLinker() {
     );
   }
 
-  if (isSuccess) {
+  if (data.connected) {
     return (
       <div className='service-linked'>
         <p className='linked-status'>✓ Discord Account Linked</p>
@@ -158,7 +164,7 @@ function DiscordLinker() {
           onClick={handleLinkDiscord}
           className='btn-discord-change'
         >
-          Change Account
+          , isError Change Account
         </button>
       </div>
     );
