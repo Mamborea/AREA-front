@@ -17,7 +17,7 @@ function CreateSubscriptionForm({ onClose }: { onClose: () => void }) {
       await createSubscription({ resource, changeType }).unwrap();
       onClose();
     } catch (_err) {
-      /* empty */
+      console.error('Failed to create:', _err);
     }
   };
 
@@ -101,7 +101,7 @@ export function Microsoft() {
     try {
       await deleteSubscription({ id }).unwrap();
     } catch (_err) {
-      /* empty */
+      console.error('Failed to delete:', _err);
     }
   };
 

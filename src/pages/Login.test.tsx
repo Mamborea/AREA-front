@@ -3,7 +3,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Login } from './Login';
 
-// ---- mocks ----
+// mocks
 const navigateMock = vi.fn();
 const loginMock = vi.fn();
 
@@ -22,7 +22,7 @@ vi.mock('../shared/src/web', () => ({
   useLoginMutation: () => [loginMock, { isLoading: false }],
 }));
 
-// ---- helper ----
+// helper
 const renderComponent = () =>
   render(
     <BrowserRouter>
