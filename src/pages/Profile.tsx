@@ -2,7 +2,9 @@ import {
   useAppSelector,
   useGetGithubAuthUrlQuery,
   useGetGmailAuthUrlQuery,
+  useGetJiraAuthUrlQuery,
   useGetMicrosoftAuthUrlQuery,
+  useListJiraWebhooksQuery,
   useListMicrosoftWebhooksQuery,
   useListRepositoriesQuery,
 } from '../shared/src/web';
@@ -109,6 +111,58 @@ function GmailLinker() {
   return null;
 }
 
+function JiraLinker() {
+  const { refetch: getAuthUrl } = useGetJiraAuthUrlQuery(undefined);
+  const { isLoading, isSuccess, isError } = useListJiraWebhooksQuery();
+
+  const handleLinkJira = async () => {
+    try {
+      const result = await getAuthUrl();
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else if (result.error) {
+        console.error('Failed to fetch Jira auth URL:', result.error);
+        alert('Failed to connect to Jira. Please try again later.');
+      } else {
+        console.warn('No URL returned from Jira auth endpoint');
+        alert('Unable to initiate Jira authentication. Please try again.');
+      }
+    } catch (error) {
+      console.error('Unexpected error during Jira auth:', error);
+      alert('An unexpected error occurred. Please try again.');
+    }
+  };
+
+  if (isLoading) {
+    return <div className='loading-spinner'>Loading...</div>;
+  }
+
+  if (isError) {
+    return (
+      <button type='button' onClick={handleLinkJira} className='btn-jira'>
+        Link Jira Account
+      </button>
+    );
+  }
+
+  if (isSuccess) {
+    return (
+      <div className='service-linked'>
+        <p className='linked-status'>✓ Jira Account Linked</p>
+        <button
+          type='button'
+          onClick={handleLinkJira}
+          className='btn-jira-change'
+        >
+          Change Account
+        </button>
+      </div>
+    );
+  }
+
+  return null;
+}
+
 function MicrosoftLinker() {
   const { refetch: getAuthUrl } = useGetMicrosoftAuthUrlQuery(undefined);
   const { isLoading, isSuccess, isError } = useListMicrosoftWebhooksQuery();
@@ -190,6 +244,7 @@ export function Profile() {
           <h3>Connected Services</h3>
           <GitHubLinker />
           <GmailLinker />
+          <JiraLinker />
           <MicrosoftLinker />
         </div>
       </div>

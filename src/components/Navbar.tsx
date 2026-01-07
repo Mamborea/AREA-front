@@ -23,6 +23,7 @@ export function Navbar() {
             <Link to='/github'>GitHub</Link>
             <Link to='/microsoft'>Microsoft</Link>
             <Link to='/gmail'>Gmail</Link>
+            <Link to='/jira'>Jira</Link>
             <Link to='/reactions'>Reactions</Link>
             <Link to='/profile'>Profile</Link>
             <button type='button' onClick={handleLogout} className='btn-logout'>

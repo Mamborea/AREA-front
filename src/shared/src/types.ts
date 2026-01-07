@@ -75,6 +75,15 @@ export interface GmailSubscription {
   expirationDateTime: string;
 }
 
+// Jira type
+
+export interface JiraSubscription {
+  id: string;
+  changeType: string;
+  clientState: string;
+  expirationDateTime: string;
+}
+
 export interface Reaction {
   id: number;
   hookId: number;

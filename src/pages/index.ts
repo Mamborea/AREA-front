@@ -3,6 +3,8 @@ export { GitHub } from './GitHub';
 export { GitHubCallback } from './GitHubCallback';
 export { Gmail } from './Gmail';
 export { GmailCallback } from './GmailCallback';
+export { Jira } from './Jira';
+export { JiraCallback } from './JiraCallback';
 export { Login } from './Login';
 export { Microsoft } from './Microsoft';
 export { MicrosoftCallback } from './MicrosoftCallback';

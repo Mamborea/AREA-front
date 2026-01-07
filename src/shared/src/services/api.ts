@@ -5,6 +5,7 @@ import type {
   ApiAuthResponse,
   CreateWebhookDto,
   GmailSubscription,
+  JiraSubscription,
   MicrosoftSubscription,
   Repository,
   User,
@@ -208,7 +209,7 @@ export const apiSlice = createApi({
       }),
     }),
     listGmailWebhooks: builder.query<GmailSubscription[], void>({
-      query: () => '/Gmail/webhooks',
+      query: () => '/gmail/webhooks',
       providesTags: ['gmailSubscriptions'],
       refetchOnMountOrArgChange: true,
     }),
@@ -229,6 +230,48 @@ export const apiSlice = createApi({
         method: 'DELETE',
       }),
       invalidatesTags: ['GmailSubscriptions'],
+    }),
+
+    getJiraAuthUrl: builder.query<
+      { url: string },
+      { mobile?: boolean } | undefined
+    >({
+      query: (args) => ({
+        url: '/auth/jira/url',
+        params: args?.mobile ? { mobile: 'true' } : undefined,
+        responseHandler: (response) => response.text(),
+      }),
+      transformResponse: (response: string) => ({ url: response }),
+    }),
+    validateJira: builder.mutation<{ success: boolean }, { code: string }>({
+      query: ({ code }) => ({
+        url: '/auth/jira/validate',
+        method: 'POST',
+        body: { code },
+      }),
+    }),
+    listJiraWebhooks: builder.query<JiraSubscription[], void>({
+      query: () => '/jira/webhooks',
+      providesTags: ['jiraSubscriptions'],
+      refetchOnMountOrArgChange: true,
+    }),
+    createJiraSubscription: builder.mutation<
+      JiraSubscription,
+      { eventType: number }
+    >({
+      query: (dto) => ({
+        url: '/jira/create-webhook',
+        method: 'POST',
+        body: dto,
+      }),
+      invalidatesTags: ['JiraSubscriptions'],
+    }),
+    deleteJiraSubscription: builder.mutation<void, { id: string }>({
+      query: ({ id }) => ({
+        url: `/jira/webhook?id=${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['JiraSubscriptions'],
     }),
   }),
 });
@@ -260,4 +303,11 @@ export const {
   useListGmailWebhooksQuery,
   useCreateGmailSubscriptionMutation,
   useDeleteGmailSubscriptionMutation,
+
+  useGetJiraAuthUrlQuery,
+  useLazyGetJiraAuthUrlQuery,
+  useValidateJiraMutation,
+  useListJiraWebhooksQuery,
+  useCreateJiraSubscriptionMutation,
+  useDeleteJiraSubscriptionMutation,
 } = apiSlice;
