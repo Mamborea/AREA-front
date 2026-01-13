@@ -64,3 +64,78 @@ export interface MicrosoftSubscription {
   clientState: string;
   expirationDateTime: string;
 }
+
+//Gmail type
+
+export interface GmailSubscription {
+  id: string;
+  resource: string;
+  changeType: string;
+  clientState: string;
+  expirationDateTime: string;
+}
+
+export type AboutService = {
+  name: string;
+  actions: {
+    name: string;
+    description: string;
+  }[];
+  reactions: {
+    name: string;
+    description: string;
+  }[];
+};
+
+export interface Reaction {
+  id: number;
+  hookId: number;
+  reactionType: number;
+  config: {
+    to?: string;
+    subject?: string;
+    body?: string;
+    webhookUrl?: string;
+    message?: string;
+    url?: string;
+    [key: string]: any;
+  };
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface CreateReactionDto {
+  hookId: number;
+  reactionType: number;
+  config: {
+    to?: string;
+    subject?: string;
+    body?: string;
+    webhookUrl?: string;
+    message?: string;
+    url?: string;
+    [key: string]: any;
+  };
+}
+
+// About/Services Types
+
+export interface AboutResponse {
+  client: {
+    host: string;
+  };
+  server: {
+    current_time: number;
+    services: Array<{
+      name: string;
+      actions: Array<{
+        name: string;
+        description: string;
+      }>;
+      reactions: Array<{
+        name: string;
+        description: string;
+      }>;
+    }>;
+  };
+}
