@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { Navbar } from './Navbar';
 
 // Mock redux hooks & actions
@@ -30,7 +31,7 @@ describe('Navbar', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (useAppDispatch as unknown as vi.Mock).mockReturnValue(mockDispatch);
+    (useAppDispatch as unknown as Mock).mockReturnValue(mockDispatch);
   });
 
   const renderNavbar = () =>
@@ -41,7 +42,7 @@ describe('Navbar', () => {
     );
 
   it('shows Login and Register when not authenticated', () => {
-    (useAppSelector as unknown as vi.Mock).mockImplementation((selector) =>
+    (useAppSelector as unknown as Mock).mockImplementation((selector) =>
       selector({ auth: { isAuthenticated: false } })
     );
 
@@ -53,21 +54,20 @@ describe('Navbar', () => {
   });
 
   it('shows authenticated links when logged in', () => {
-    (useAppSelector as unknown as vi.Mock).mockImplementation((selector) =>
+    (useAppSelector as unknown as Mock).mockImplementation((selector) =>
       selector({ auth: { isAuthenticated: true } })
     );
 
     renderNavbar();
 
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
-    expect(screen.getByText('GitHub')).toBeInTheDocument();
-    expect(screen.getByText('Microsoft')).toBeInTheDocument();
+    expect(screen.getByText('Area')).toBeInTheDocument();
     expect(screen.getByText('Profile')).toBeInTheDocument();
     expect(screen.getByText('Logout')).toBeInTheDocument();
   });
 
   it('dispatches logout and redirects to /login', () => {
-    (useAppSelector as unknown as vi.Mock).mockImplementation((selector) =>
+    (useAppSelector as unknown as Mock).mockImplementation((selector) =>
       selector({ auth: { isAuthenticated: true } })
     );
 
@@ -80,7 +80,7 @@ describe('Navbar', () => {
   });
 
   it('always shows brand link', () => {
-    (useAppSelector as unknown as vi.Mock).mockImplementation((selector) =>
+    (useAppSelector as unknown as Mock).mockImplementation((selector) =>
       selector({ auth: { isAuthenticated: false } })
     );
 

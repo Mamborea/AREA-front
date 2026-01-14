@@ -20,6 +20,7 @@ vi.mock('react-router-dom', async () => {
 
 vi.mock('../shared/src/web', () => ({
   useLoginMutation: () => [loginMock, { isLoading: false }],
+  useGoogleAuthUrlQuery: () => ({ data: null, isLoading: false }),
 }));
 
 // helper
@@ -38,7 +39,7 @@ describe('Login', () => {
   it('renders login form', () => {
     renderComponent();
 
-    expect(screen.getByText('Login')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Login' })).toBeInTheDocument();
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /login/i })).toBeInTheDocument();
@@ -102,10 +103,18 @@ describe('Login', () => {
 
     renderComponent();
 
+    fireEvent.change(screen.getByLabelText(/email/i), {
+      target: { value: 'wrong@example.com' },
+    });
+
+    fireEvent.change(screen.getByLabelText(/password/i), {
+      target: { value: 'wrongpassword' },
+    });
+
     fireEvent.click(screen.getByRole('button', { name: /login/i }));
 
-    expect(
-      await screen.findByText('An unexpected error occurred.')
-    ).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument();
+    });
   });
 });

@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { Profile } from './Profile';
 
 // Mock Redux hooks & API hooks
@@ -9,8 +10,10 @@ vi.mock('../shared/src/web', async () => {
     useAppSelector: vi.fn(),
     useGetGithubAuthUrlQuery: vi.fn(),
     useGetMicrosoftAuthUrlQuery: vi.fn(),
-    useListRepositoriesQuery: vi.fn(),
-    useListMicrosoftWebhooksQuery: vi.fn(),
+    useGetGmailAuthUrlQuery: vi.fn(),
+    useGetDiscordAuthUrlQuery: vi.fn(),
+    useGetServicesQuery: vi.fn(),
+    useConnectionQuery: vi.fn(),
   };
 });
 
@@ -18,8 +21,10 @@ import {
   useAppSelector,
   useGetGithubAuthUrlQuery,
   useGetMicrosoftAuthUrlQuery,
-  useListMicrosoftWebhooksQuery,
-  useListRepositoriesQuery,
+  useGetGmailAuthUrlQuery,
+  useGetDiscordAuthUrlQuery,
+  useGetServicesQuery,
+  useConnectionQuery,
 } from '../shared/src/web';
 
 describe('Profile component', () => {
@@ -30,26 +35,38 @@ describe('Profile component', () => {
     vi.clearAllMocks();
 
     // Default Redux state
-    (useAppSelector as unknown as vi.Mock).mockImplementation((selector) =>
+    (useAppSelector as unknown as Mock).mockImplementation((selector) =>
       selector({ auth: { user: mockUser } })
     );
 
+    // Default services query
+    (useGetServicesQuery as unknown as Mock).mockReturnValue({
+      data: {
+        server: {
+          services: [
+            { name: 'github', actions: [], reactions: [] },
+            { name: 'microsoft', actions: [], reactions: [] },
+          ],
+        },
+      },
+    });
+
     // Default API hooks
-    (useGetGithubAuthUrlQuery as unknown as vi.Mock).mockReturnValue({
+    (useGetGithubAuthUrlQuery as unknown as Mock).mockReturnValue({
       refetch: mockRefetch,
     });
-    (useGetMicrosoftAuthUrlQuery as unknown as vi.Mock).mockReturnValue({
+    (useGetMicrosoftAuthUrlQuery as unknown as Mock).mockReturnValue({
       refetch: mockRefetch,
     });
-    (useListRepositoriesQuery as unknown as vi.Mock).mockReturnValue({
-      isLoading: false,
-      isSuccess: false,
-      isError: true,
+    (useGetGmailAuthUrlQuery as unknown as Mock).mockReturnValue({
+      refetch: mockRefetch,
     });
-    (useListMicrosoftWebhooksQuery as unknown as vi.Mock).mockReturnValue({
+    (useGetDiscordAuthUrlQuery as unknown as Mock).mockReturnValue({
+      refetch: mockRefetch,
+    });
+    (useConnectionQuery as unknown as Mock).mockReturnValue({
       isLoading: false,
-      isSuccess: false,
-      isError: true,
+      data: { connected: false },
     });
   });
 
@@ -88,7 +105,7 @@ describe('Profile component', () => {
     const githubButton = screen.getByText('Link GitHub Account');
 
     // Mock window.location.href
-    delete window.location;
+    delete (window as any).location;
     window.location = { href: '' } as any;
 
     await fireEvent.click(githubButton);
@@ -106,7 +123,7 @@ describe('Profile component', () => {
     const msButton = screen.getByText('Link Microsoft Account');
 
     // Mock window.location.href
-    delete window.location;
+    delete (window as any).location;
     window.location = { href: '' } as any;
 
     await fireEvent.click(msButton);
@@ -116,22 +133,29 @@ describe('Profile component', () => {
   });
 
   it('shows loading spinner when GitHub API is loading', () => {
-    (useListRepositoriesQuery as unknown as vi.Mock).mockReturnValue({
+    (useConnectionQuery as unknown as Mock).mockReturnValue({
       isLoading: true,
-      isSuccess: false,
-      isError: false,
+      data: { connected: false },
     });
 
     renderProfile();
 
-    expect(screen.getByText('Loading...')).toBeInTheDocument();
+    const loadingElements = screen.getAllByText('Loading...');
+    expect(loadingElements.length).toBeGreaterThan(0);
   });
 
   it('shows success message when GitHub account is linked', () => {
-    (useListRepositoriesQuery as unknown as vi.Mock).mockReturnValue({
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
+    (useConnectionQuery as unknown as Mock).mockImplementation((params: any) => {
+      if (params?.provider === 'github') {
+        return {
+          isLoading: false,
+          data: { connected: true },
+        };
+      }
+      return {
+        isLoading: false,
+        data: { connected: false },
+      };
     });
 
     renderProfile();
@@ -141,10 +165,17 @@ describe('Profile component', () => {
   });
 
   it('shows success message when Microsoft account is linked', () => {
-    (useListMicrosoftWebhooksQuery as unknown as vi.Mock).mockReturnValue({
-      isLoading: false,
-      isSuccess: true,
-      isError: false,
+    (useConnectionQuery as unknown as Mock).mockImplementation((params: any) => {
+      if (params?.provider === 'microsoft') {
+        return {
+          isLoading: false,
+          data: { connected: true },
+        };
+      }
+      return {
+        isLoading: false,
+        data: { connected: false },
+      };
     });
 
     renderProfile();
