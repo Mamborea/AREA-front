@@ -65,6 +65,28 @@ export interface MicrosoftSubscription {
   expirationDateTime: string;
 }
 
+//Gmail type
+
+export interface GmailSubscription {
+  id: string;
+  resource: string;
+  changeType: string;
+  clientState: string;
+  expirationDateTime: string;
+}
+
+export type AboutService = {
+  name: string;
+  actions: {
+    name: string;
+    description: string;
+  }[];
+  reactions: {
+    name: string;
+    description: string;
+  }[];
+};
+
 export interface Reaction {
   id: number;
   hookId: number;
@@ -93,5 +115,27 @@ export interface CreateReactionDto {
     message?: string;
     url?: string;
     [key: string]: any;
+  };
+}
+
+// About/Services Types
+
+export interface AboutResponse {
+  client: {
+    host: string;
+  };
+  server: {
+    current_time: number;
+    services: Array<{
+      name: string;
+      actions: Array<{
+        name: string;
+        description: string;
+      }>;
+      reactions: Array<{
+        name: string;
+        description: string;
+      }>;
+    }>;
   };
 }

@@ -1,9 +1,10 @@
+export { Area } from './Area';
 export { Dashboard } from './Dashboard';
-export { GitHub } from './GitHub';
+export { DiscordCallback } from './DiscordCallback';
 export { GitHubCallback } from './GitHubCallback';
+export { GmailCallback } from './GmailCallback';
 export { Login } from './Login';
-export { Microsoft } from './Microsoft';
 export { MicrosoftCallback } from './MicrosoftCallback';
+export { NotFound } from './NotFound';
 export { Profile } from './Profile';
-export { Reactions } from './Reactions';
 export { Register } from './Register';

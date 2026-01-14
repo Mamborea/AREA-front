@@ -6,13 +6,13 @@ import {
   useListWebhooksQuery,
 } from '../shared/src/web';
 
-export function GitHub() {
+export function Discord() {
   const [selectedRepo, setSelectedRepo] = useState<Repository | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
   const [webhookEvents, setWebhookEvents] = useState<string[]>(['push']);
   const [webhookSecret, setWebhookSecret] = useState('');
-  const [_errorMessage, setErrorMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   const {
     data: repositories = [],
@@ -73,21 +73,21 @@ export function GitHub() {
 
   if (reposError && repositories.length === 0) {
     return (
-      <div className='github-page'>
-        <h1>GitHub Integration</h1>
+      <div className='discord-page'>
+        <h1>Discord Integration</h1>
         <div className='error-message'>
-          Failed to load repositories. Make sure your GitHub account is linked.
+          Failed to load repositories. Make sure your Discord account is linked.
         </div>
-        <p>Please link your GitHub account from your profile page.</p>
+        <p>Please link your Discord account from your profile page.</p>
       </div>
     );
   }
 
   return (
-    <div className='github-page'>
-      <h1>GitHub Integration</h1>
+    <div className='discord-page'>
+      <h1>Discord Integration</h1>
 
-      <div className='github-content'>
+      <div className='discord-content'>
         <div className='repositories-section'>
           <h2>Your Repositories</h2>
           <ul className='repo-list'>
@@ -121,6 +121,21 @@ export function GitHub() {
 
             {showCreateForm && (
               <form className='webhook-form' onSubmit={handleCreateWebhook}>
+                <h3>Create New Webhook</h3>
+                {errorMessage && (
+                  <div className='error-message'>{errorMessage}</div>
+                )}
+                <div className='form-group'>
+                  <label htmlFor='webhook-url'>Payload URL</label>
+                  <input
+                    id='webhook-url'
+                    type='url'
+                    value={webhookUrl}
+                    onChange={(e) => setWebhookUrl(e.target.value)}
+                    placeholder='https://example.com/webhook'
+                    required
+                  />
+                </div>
                 <div className='form-group'>
                   <label htmlFor='webhook-secret'>Secret (optional)</label>
                   <input

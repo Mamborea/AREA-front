@@ -1,6 +1,7 @@
 import { type FormEvent, useState } from 'react';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
+import { GoogleAuthButton } from '../components/GoogleAuthButton';
 import { useRegisterMutation } from '../shared/src/web';
 
 export function Register() {
@@ -90,6 +91,7 @@ export function Register() {
       <div className='auth-card'>
         <h1>Register</h1>
         {errorMessage && <div className='error-message'>{errorMessage}</div>}
+
         <form onSubmit={handleSubmit}>
           <div className='form-group'>
             <label htmlFor='name'>Name</label>
@@ -198,6 +200,12 @@ export function Register() {
             {isLoading ? 'Registering...' : 'Register'}
           </button>
         </form>
+
+        <div className='divider'>
+          <span>OR</span>
+        </div>
+
+        <GoogleAuthButton onError={setErrorMessage} redirectTo='/dashboard' />
 
         <p className='auth-link'>
           Already have an account? <Link to='/login'>Login</Link>

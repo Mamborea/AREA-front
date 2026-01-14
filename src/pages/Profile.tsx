@@ -1,124 +1,124 @@
+import { skipToken } from '@reduxjs/toolkit/query';
 import {
   useAppSelector,
+  // useListDiscordWebhooksQuery,
+  // useListMicrosoftWebhooksQuery,
+  useConnectionQuery,
+  useGetDiscordAuthUrlQuery,
   useGetGithubAuthUrlQuery,
+  useGetGmailAuthUrlQuery,
   useGetMicrosoftAuthUrlQuery,
-  useListMicrosoftWebhooksQuery,
-  useListRepositoriesQuery,
+  useGetServicesQuery,
 } from '../shared/src/web';
 
-function GitHubLinker() {
-  const { refetch: getAuthUrl } = useGetGithubAuthUrlQuery(undefined);
-  const { isLoading, isSuccess, isError } = useListRepositoriesQuery();
+type Service = {
+  name: string;
+  actions: { name: string; description: string }[];
+  reactions: { name: string; description: string }[];
+};
 
-  const handleLinkGithub = async () => {
-    try {
-      const result = await getAuthUrl();
-      if (result.data?.url) {
-        window.location.href = result.data.url;
-      } else if (result.error) {
-        console.error('Failed to fetch GitHub auth URL:', result.error);
-        alert('Failed to connect to GitHub. Please try again later.');
-      } else {
-        console.warn('No URL returned from GitHub auth endpoint');
-        alert('Unable to initiate GitHub authentication. Please try again.');
-      }
-    } catch (error) {
-      console.error('Unexpected error during GitHub auth:', error);
-      alert('An unexpected error occurred. Please try again.');
-    }
-  };
+type ServiceLinkerProps = {
+  label: string;
+  isLoading: boolean;
+  isLinked: boolean;
+  onLink: () => void;
+};
 
+function ServiceLinker({
+  label,
+  isLoading,
+  isLinked,
+  onLink,
+}: ServiceLinkerProps) {
   if (isLoading) {
     return <div className='loading-spinner'>Loading...</div>;
   }
 
-  if (isError) {
-    return (
-      <button type='button' onClick={handleLinkGithub} className='btn-github'>
-        Link GitHub Account
-      </button>
-    );
-  }
-
-  if (isSuccess) {
-    return (
-      <div className='service-linked'>
-        <p className='linked-status'>✓ GitHub Account Linked</p>
-        <button
-          type='button'
-          onClick={handleLinkGithub}
-          className='btn-github-change'
-        >
-          Change Account
-        </button>
-      </div>
-    );
-  }
-  return null;
-}
-
-function MicrosoftLinker() {
-  const { refetch: getAuthUrl } = useGetMicrosoftAuthUrlQuery(undefined);
-  const { isLoading, isSuccess, isError } = useListMicrosoftWebhooksQuery();
-
-  const handleLinkMicrosoft = async () => {
-    try {
-      const result = await getAuthUrl();
-      if (result.data?.url) {
-        window.location.href = result.data.url;
-      } else if (result.error) {
-        console.error('Failed to fetch Microsoft auth URL:', result.error);
-        alert('Failed to connect to Microsoft. Please try again later.');
-      } else {
-        console.warn('No URL returned from Microsoft auth endpoint');
-        alert('Unable to initiate Microsoft authentication. Please try again.');
-      }
-    } catch (error) {
-      console.error('Unexpected error during Microsoft auth:', error);
-      alert('An unexpected error occurred. Please try again.');
-    }
-  };
-
-  if (isLoading) {
-    return <div className='loading-spinner'>Loading...</div>;
-  }
-
-  if (isError) {
+  if (!isLinked) {
     return (
       <button
         type='button'
-        onClick={handleLinkMicrosoft}
-        className='btn-microsoft'
+        onClick={onLink}
+        className={`btn-${label.toLowerCase()}`}
       >
-        Link Microsoft Account
+        Link {label} Account
       </button>
     );
   }
 
-  if (isSuccess) {
-    return (
-      <div className='service-linked'>
-        <p className='linked-status'>✓ Microsoft Account Linked</p>
-        <button
-          type='button'
-          onClick={handleLinkMicrosoft}
-          className='btn-microsoft-change'
-        >
-          Change Account
-        </button>
-      </div>
-    );
-  }
-
-  return null;
+  return (
+    <div className='service-linked'>
+      <p className='linked-status'>✓ {label} Account Linked</p>
+      <button
+        type='button'
+        onClick={onLink}
+        className={`btn-${label.toLowerCase()}-change`}
+      >
+        Change Account
+      </button>
+    </div>
+  );
 }
 
 export function Profile() {
   const { user } = useAppSelector((state) => state.auth);
 
+  const { data: servicesData } = useGetServicesQuery();
+  const services: Service[] = servicesData?.server?.services ?? [];
+
+  const serviceNames = new Set(services.map((s) => s.name));
+
+  const { refetch: getGithubAuthUrl } = useGetGithubAuthUrlQuery(
+    serviceNames.has('github') ? undefined : skipToken
+  );
+
+  const { refetch: getGmailAuthUrl } = useGetGmailAuthUrlQuery(
+    serviceNames.has('gmail') ? undefined : skipToken
+  );
+
+  const { refetch: getMicrosoftAuthUrl } = useGetMicrosoftAuthUrlQuery(
+    serviceNames.has('microsoft') ? undefined : skipToken
+  );
+
+  const { refetch: getDiscordAuthUrl } = useGetDiscordAuthUrlQuery(
+    serviceNames.has('discord') ? undefined : skipToken
+  );
+
+  const githubConnection = useConnectionQuery(
+    serviceNames.has('github') ? { provider: 'github' } : skipToken
+  );
+
+  const gmailConnection = useConnectionQuery(
+    serviceNames.has('gmail') ? { provider: 'gmail' } : skipToken
+  );
+
+  const microsoftConnection = useConnectionQuery(
+    serviceNames.has('microsoft') ? { provider: 'microsoft' } : skipToken
+  );
+
+  const discordConnection = useConnectionQuery(
+    serviceNames.has('discord') ? { provider: 'discord' } : skipToken
+  );
+
+  const handleOAuthRedirect = async (getUrl: () => any, label: string) => {
+    try {
+      const result = await getUrl();
+      if (result.data?.url) {
+        window.location.href = result.data.url;
+      } else {
+        console.error(`Failed to fetch ${label} auth URL`, result.error);
+        alert(`Unable to connect to ${label}`);
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Unexpected error occurred');
+    }
+  };
+
   return (
     <div className='profile'>
       <h1>Profile</h1>
+
       <div className='profile-card'>
         <div className='profile-info'>
           <div className='info-row'>
@@ -134,10 +134,66 @@ export function Profile() {
             <span>{user?.email}</span>
           </div>
         </div>
+
         <div className='profile-actions'>
           <h3>Connected Services</h3>
-          <GitHubLinker />
-          <MicrosoftLinker />
+
+          {services.map((service) => {
+            switch (service.name) {
+              case 'github':
+                return (
+                  <ServiceLinker
+                    key='github'
+                    label='GitHub'
+                    isLoading={githubConnection.isLoading}
+                    isLinked={githubConnection.data?.connected === true}
+                    onLink={() =>
+                      handleOAuthRedirect(getGithubAuthUrl, 'GitHub')
+                    }
+                  />
+                );
+
+              case 'gmail':
+                return (
+                  <ServiceLinker
+                    key='gmail'
+                    label='Gmail'
+                    isLoading={gmailConnection.isLoading}
+                    isLinked={gmailConnection.data?.connected === true}
+                    onLink={() => handleOAuthRedirect(getGmailAuthUrl, 'Gmail')}
+                  />
+                );
+
+              case 'microsoft':
+                return (
+                  <ServiceLinker
+                    key='microsoft'
+                    label='Microsoft'
+                    isLoading={microsoftConnection.isLoading}
+                    isLinked={microsoftConnection.data?.connected === true}
+                    onLink={() =>
+                      handleOAuthRedirect(getMicrosoftAuthUrl, 'Microsoft')
+                    }
+                  />
+                );
+
+              case 'discord':
+                return (
+                  <ServiceLinker
+                    key='discord'
+                    label='Discord'
+                    isLoading={discordConnection.isLoading}
+                    isLinked={discordConnection.data?.connected === true}
+                    onLink={() =>
+                      handleOAuthRedirect(getDiscordAuthUrl, 'Discord')
+                    }
+                  />
+                );
+
+              default:
+                return null;
+            }
+          })}
         </div>
       </div>
     </div>
