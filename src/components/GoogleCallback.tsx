@@ -1,10 +1,16 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { loadToken, persistToken } from '../shared/src/features/authSlice';
+import { useAppDispatch, useAppSelector } from '../shared/src/hooks';
+import type { ApiAuthResponse } from '../shared/src/types';
 import { useGoogleAuthValidateMutation } from '../shared/src/web';
 
 export function GoogleCallback() {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const isAuthenticated = useAppSelector((state) => state.auth.isAuthenticated);
   const [status, setStatus] = useState('Validating session...');
+  const [shouldRedirect, setShouldRedirect] = useState(false);
   const [googleAuthValidate, { isLoading }] = useGoogleAuthValidateMutation();
 
   useEffect(() => {
@@ -14,6 +20,13 @@ export function GoogleCallback() {
 
     console.log('Google Callback params:', { code, state });
 
+    const validationKey = code ? `google-callback:${code}` : null;
+    if (validationKey && sessionStorage.getItem(validationKey)) {
+      setStatus('Session already validated. Redirecting...');
+      setShouldRedirect(true);
+      return;
+    }
+
     if (!code) {
       setStatus('Error: No authorization code found.');
       return;
@@ -21,8 +34,6 @@ export function GoogleCallback() {
 
     try {
       const decodedState = state ? JSON.parse(atob(state)) : {};
-
-      // IF MOBILE: Kick them back to the app
       if (decodedState.platform === 'mobile') {
         setStatus('Redirecting to mobile app...');
         window.location.href = `area://auth/google?code=${code}`;
@@ -32,31 +43,41 @@ export function GoogleCallback() {
       console.error('State decode failed', e);
     }
 
-    // IF WEB (or if state is invalid): Continue with normal web login...
     const linkAccount = async () => {
       setStatus('Linking your Google account...');
+      if (validationKey) sessionStorage.setItem(validationKey, 'pending');
       try {
         const data = await googleAuthValidate({
           code,
           ...(state && { state }),
         }).unwrap();
 
-        if (data.access_token) {
+        const token = (data as ApiAuthResponse).access_token;
+        if (token) {
+          await dispatch(persistToken(token)).unwrap();
+          await dispatch(loadToken()).unwrap();
+          if (validationKey) sessionStorage.setItem(validationKey, 'done');
           setStatus('Success! Redirecting...');
-          setTimeout(() => {
-            navigate('/dashboard');
-          }, 1000);
+          setShouldRedirect(true);
         } else {
           setStatus('Failed to get authentication token.');
+          if (validationKey) sessionStorage.removeItem(validationKey);
         }
       } catch (error) {
         console.error('Google validation error:', error);
         setStatus('Failed to link Google account. See console for details.');
+        if (validationKey) sessionStorage.removeItem(validationKey);
       }
     };
 
     linkAccount();
-  }, [navigate, googleAuthValidate]);
+  }, [googleAuthValidate, dispatch]);
+
+  useEffect(() => {
+    if (shouldRedirect && isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [shouldRedirect, isAuthenticated, navigate]);
 
   return (
     <div

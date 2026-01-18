@@ -15,6 +15,7 @@ export default defineConfig(({ mode }) => {
             dedupe: ['react', 'react-dom'],
         },
         server: {
+            allowedHosts: ['front.mambokara.dev'],
             proxy: {
                 '/api': {
                     target: env.VITE_API_URL || 'http://localhost:8080',
@@ -38,6 +39,18 @@ export default defineConfig(({ mode }) => {
                     '**/types.ts',
                 ],
             },
+        },
+        build: {
+            rollupOptions: {
+                output: {
+                    manualChunks: {
+                        'react-vendor': ['react', 'react-dom'],
+                        'redux-vendor': ['@reduxjs/toolkit', 'react-redux'],
+                        'reactflow-vendor': ['reactflow'],
+                    },
+                },
+            },
+            chunkSizeWarningLimit: 500,
         },
     }
 })

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useValidateGithubMutation } from '../shared/src/web';
+import { useValidateTwitchMutation } from '../shared/src/web';
 
-function GitHubCallback() {
+function TwitchCallback() {
   const navigate = useNavigate();
   const [status, setStatus] = useState('Validating session...');
-  const [validateGithub, { isLoading }] = useValidateGithubMutation();
+  const [validateTwitch, { isLoading }] = useValidateTwitchMutation();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -16,37 +16,40 @@ function GitHubCallback() {
       setStatus('Error: No authorization code found.');
       return;
     }
+    if (!state) {
+      setStatus('Error: No state found.');
+      return;
+    }
 
     try {
       const decodedState = state ? JSON.parse(atob(state)) : {};
 
-      // IF MOBILE: Kick them back to the app
       if (decodedState.platform === 'mobile') {
         setStatus('Redirecting to mobile app...');
-        window.location.href = `area://auth/github?code=${code}`;
+        // Note: Check what scheme your mobile app expects. Assuming area://auth/twitch
+        window.location.href = `area://auth/twitch?code=${code}&state=${state}`;
         return;
       }
     } catch (e) {
       console.error('State decode failed', e);
-      // Fall through to normal web flow
     }
 
-    // IF WEB (or if state is invalid): Continue with normal web login...
     const linkAccount = async () => {
-      setStatus('Linking your GitHub account...');
+      setStatus('Linking your Twitch account...');
       try {
-        await validateGithub({ code }).unwrap();
+        await validateTwitch({ code, state }).unwrap();
         setStatus('Success! Redirecting...');
         setTimeout(() => {
           navigate('/profile');
         }, 1000);
       } catch (_error) {
-        setStatus('Failed to link GitHub account. See console for details.');
+        setStatus('Failed to link Twitch account. See console for details.');
+        console.error(_error);
       }
     };
 
     linkAccount();
-  }, [navigate, validateGithub]);
+  }, [navigate, validateTwitch]);
 
   return (
     <div
@@ -58,5 +61,5 @@ function GitHubCallback() {
   );
 }
 
-export { GitHubCallback };
-export default GitHubCallback;
+export { TwitchCallback };
+export default TwitchCallback;

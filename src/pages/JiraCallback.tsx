@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useValidateGithubMutation } from '../shared/src/web';
+import { useValidateJiraMutation } from '../shared/src/web';
 
-function GitHubCallback() {
+function JiraCallback() {
   const navigate = useNavigate();
   const [status, setStatus] = useState('Validating session...');
-  const [validateGithub, { isLoading }] = useValidateGithubMutation();
+  const [validateJira, { isLoading }] = useValidateJiraMutation();
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -20,33 +20,31 @@ function GitHubCallback() {
     try {
       const decodedState = state ? JSON.parse(atob(state)) : {};
 
-      // IF MOBILE: Kick them back to the app
       if (decodedState.platform === 'mobile') {
         setStatus('Redirecting to mobile app...');
-        window.location.href = `area://auth/github?code=${code}`;
+        window.location.href = `area://auth/jira?code=${code}`;
         return;
       }
     } catch (e) {
       console.error('State decode failed', e);
-      // Fall through to normal web flow
     }
 
-    // IF WEB (or if state is invalid): Continue with normal web login...
     const linkAccount = async () => {
-      setStatus('Linking your GitHub account...');
+      setStatus('Linking your Jira account...');
       try {
-        await validateGithub({ code }).unwrap();
+        await validateJira({ code }).unwrap();
         setStatus('Success! Redirecting...');
         setTimeout(() => {
           navigate('/profile');
         }, 1000);
       } catch (_error) {
-        setStatus('Failed to link GitHub account. See console for details.');
+        setStatus('Failed to link Jira account. See console for details.');
+        console.error(_error);
       }
     };
 
     linkAccount();
-  }, [navigate, validateGithub]);
+  }, [navigate, validateJira]);
 
   return (
     <div
@@ -58,5 +56,5 @@ function GitHubCallback() {
   );
 }
 
-export { GitHubCallback };
-export default GitHubCallback;
+export { JiraCallback };
+export default JiraCallback;
