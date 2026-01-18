@@ -1,8 +1,10 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { GoogleCallback } from './GoogleCallback';
+import { store } from '../shared/src/web';
 
 // Mock navigate
 const mockNavigate = vi.fn();
@@ -15,9 +17,13 @@ vi.mock('react-router-dom', async (importOriginal) => {
 });
 
 // Mock mutation
-vi.mock('../shared/src/web', () => ({
-  useGoogleAuthValidateMutation: vi.fn(),
-}));
+vi.mock('../shared/src/web', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../shared/src/web')>();
+  return {
+    ...actual,
+    useGoogleAuthValidateMutation: vi.fn(),
+  };
+});
 
 import { useGoogleAuthValidateMutation } from '../shared/src/web';
 
@@ -26,6 +32,7 @@ describe('GoogleCallback', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    sessionStorage.clear();
     delete (window as any).location;
     (window as any).location = {
       href: '',
@@ -41,9 +48,11 @@ describe('GoogleCallback', () => {
     window.location.search = '';
 
     render(
-      <MemoryRouter>
-        <GoogleCallback />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <GoogleCallback />
+        </MemoryRouter>
+      </Provider>
     );
 
     expect(
@@ -57,9 +66,11 @@ describe('GoogleCallback', () => {
     window.location.search = `?code=${code}&state=${state}`;
 
     render(
-      <MemoryRouter>
-        <GoogleCallback />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <GoogleCallback />
+        </MemoryRouter>
+      </Provider>
     );
 
     expect(screen.getByText('Redirecting to mobile app...')).toBeInTheDocument();
@@ -75,9 +86,11 @@ describe('GoogleCallback', () => {
     });
 
     render(
-      <MemoryRouter>
-        <GoogleCallback />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <GoogleCallback />
+        </MemoryRouter>
+      </Provider>
     );
 
     expect(screen.getByText('Linking your Google account...')).toBeInTheDocument();
@@ -95,7 +108,7 @@ describe('GoogleCallback', () => {
     // Wait for setTimeout
     await waitFor(
       () => {
-        expect(mockNavigate).toHaveBeenCalledWith('/dashboard');
+        expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
       },
       { timeout: 1500 }
     );
@@ -110,9 +123,11 @@ describe('GoogleCallback', () => {
     });
 
     render(
-      <MemoryRouter>
-        <GoogleCallback />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <GoogleCallback />
+        </MemoryRouter>
+      </Provider>
     );
 
     await waitFor(() => {
@@ -133,9 +148,11 @@ describe('GoogleCallback', () => {
     });
 
     render(
-      <MemoryRouter>
-        <GoogleCallback />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <GoogleCallback />
+        </MemoryRouter>
+      </Provider>
     );
 
     await waitFor(() => {
@@ -160,9 +177,11 @@ describe('GoogleCallback', () => {
     });
 
     render(
-      <MemoryRouter>
-        <GoogleCallback />
-      </MemoryRouter>
+      <Provider store={store}>
+        <MemoryRouter>
+          <GoogleCallback />
+        </MemoryRouter>
+      </Provider>
     );
 
     expect(screen.getByText('Validating...')).toBeInTheDocument();

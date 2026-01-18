@@ -94,7 +94,7 @@ describe('Dashboard', () => {
 
     expect(screen.getByText('Area (actions - reactions)')).toBeInTheDocument();
     expect(
-      screen.getByText('Manage and link your actions and recations')
+      screen.getByText('Manage and link your actions and reactions')
     ).toBeInTheDocument();
   });
 

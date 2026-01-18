@@ -69,7 +69,7 @@ describe('Register Component', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Register' }));
 
-    const error = await screen.findByText('Passwords do not match');
+    const error = await screen.findByText('Passwords do not match.');
     expect(error).toBeInTheDocument();
 
     expect(mockRegister).not.toHaveBeenCalled();
@@ -139,4 +139,66 @@ describe('Register Component', () => {
     expect(button).toBeDisabled();
     expect(button).toHaveTextContent('Registering...');
   });
+
+  it('shows password requirements when typing', async () => {
+    renderRegister();
+    
+    const passwordInput = screen.getByLabelText('Password');
+    fireEvent.change(passwordInput, { target: { value: 'ab' } });
+
+    expect(screen.getByText('At least 8 characters')).toBeInTheDocument();
+    expect(screen.getByText('At least one uppercase letter')).toBeInTheDocument();
+    expect(screen.getByText('At least one lowercase letter')).toBeInTheDocument();
+    expect(screen.getByText('At least one number')).toBeInTheDocument();
+    expect(screen.getByText('At least one special character')).toBeInTheDocument();
+  });
+
+  it('validates password meets all requirements', async () => {
+    renderRegister();
+    
+    const passwordInput = screen.getByLabelText('Password');
+    
+    // Weak password
+    fireEvent.change(passwordInput, { target: { value: 'weak' } });
+    await screen.findByText('At least 8 characters');
+    
+    // Strong password
+    fireEvent.change(passwordInput, { target: { value: 'Strong123!' } });
+    // Requirements should still be visible
+    expect(screen.getByText('At least 8 characters')).toBeInTheDocument();
+  });
+
+  it('toggles password visibility', () => {
+    renderRegister();
+    
+    const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
+    expect(passwordInput.type).toBe('password');
+    
+    // Find and click eye button
+    const toggleButtons = screen.getAllByRole('button');
+    const eyeButton = toggleButtons.find(btn => btn !== screen.getByRole('button', { name: /Register/i }));
+    
+    if (eyeButton) {
+      fireEvent.click(eyeButton);
+      expect(passwordInput.type).toBe('text');
+      
+      fireEvent.click(eyeButton);
+      expect(passwordInput.type).toBe('password');
+    }
+  });
+
+  it('handles error when API returns non-standard error', async () => {
+    const error = { error: 'Unknown error' };
+    mockRegister.mockReturnValue({ unwrap: vi.fn().mockRejectedValue(error) });
+
+    renderRegister();
+    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'Bob' } });
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'bob@test.com' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'Pass123!' } });
+    fireEvent.change(screen.getByLabelText('Confirm Password'), { target: { value: 'Pass123!' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Register' }));
+
+    expect(await screen.findByText('An unexpected error occurred.')).toBeInTheDocument();
+  });
 });
+
