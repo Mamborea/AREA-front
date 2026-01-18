@@ -82,7 +82,6 @@ describe('authSlice', () => {
       await store.dispatch(persistToken('new-token'));
 
       const state = store.getState().auth;
-      // Even on rejection, token should be set
       expect(state.token).toBe('new-token');
       expect(state.isAuthenticated).toBe(true);
       expect(consoleErrorSpy).toHaveBeenCalled();
@@ -129,11 +128,9 @@ describe('authSlice', () => {
           }),
       });
 
-      // Set initial token
       await store.dispatch(persistToken('token-to-clear'));
       expect(store.getState().auth.token).toBe('token-to-clear');
 
-      // Clear it
       await store.dispatch(clearToken());
 
       const state = store.getState().auth;

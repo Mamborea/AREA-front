@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { Discord } from './Discord';
 
-// Mock hooks
 vi.mock('../shared/src/web', () => ({
   useListRepositoriesQuery: vi.fn(),
   useListWebhooksQuery: vi.fn(),
@@ -118,11 +117,9 @@ describe('Discord', () => {
   it('shows create webhook form when button is clicked', () => {
     render(<Discord />);
 
-    // Select a repo first
     const repoButton = screen.getByText('user1/repo1').closest('button');
     fireEvent.click(repoButton!);
 
-    // Click create webhook button
     const createButton = screen.getByText('Create Webhook');
     fireEvent.click(createButton);
 
@@ -137,14 +134,11 @@ describe('Discord', () => {
 
     render(<Discord />);
 
-    // Select repo
     const repoButton = screen.getByText('user1/repo1').closest('button');
     fireEvent.click(repoButton!);
 
-    // Open form
     fireEvent.click(screen.getByText('Create Webhook'));
 
-    // Fill form
     const urlInput = screen.getByLabelText('Payload URL');
     const secretInput = screen.getByLabelText('Secret (optional)');
 
@@ -153,7 +147,6 @@ describe('Discord', () => {
     });
     fireEvent.change(secretInput, { target: { value: 'my-secret' } });
 
-    // Submit form
     const submitButton = screen.getByRole('button', {
       name: 'Create',
     });
@@ -179,11 +172,9 @@ describe('Discord', () => {
 
     render(<Discord />);
 
-    // Select repo and open form
     fireEvent.click(screen.getByText('user1/repo1').closest('button')!);
     fireEvent.click(screen.getByText('Create Webhook'));
 
-    // Fill and submit form
     fireEvent.change(screen.getByLabelText('Payload URL'), {
       target: { value: 'https://discord.com/webhook/123' },
     });
@@ -197,19 +188,15 @@ describe('Discord', () => {
   it('toggles event selection', () => {
     render(<Discord />);
 
-    // Select repo and open form
     fireEvent.click(screen.getByText('user1/repo1').closest('button')!);
     fireEvent.click(screen.getByText('Create Webhook'));
 
-    // Push should be selected by default
     const pushCheckbox = screen.getByRole('checkbox', { name: /push/i });
     expect(pushCheckbox).toBeChecked();
 
-    // Toggle it off
     fireEvent.click(pushCheckbox);
     expect(pushCheckbox).not.toBeChecked();
 
-    // Toggle it back on
     fireEvent.click(pushCheckbox);
     expect(pushCheckbox).toBeChecked();
   });
@@ -217,13 +204,11 @@ describe('Discord', () => {
   it('closes form when repository selection changes', () => {
     render(<Discord />);
 
-    // Select first repo and open form
     fireEvent.click(screen.getByText('user1/repo1').closest('button')!);
     fireEvent.click(screen.getByText('Create Webhook'));
 
     expect(screen.getByLabelText('Payload URL')).toBeInTheDocument();
 
-    // Select different repo
     fireEvent.click(screen.getByText('user2/repo2').closest('button')!);
 
     expect(

@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { Dashboard } from './Dashboard';
 
-// Mock Redux hook
 vi.mock('../shared/src/web', () => ({
   useAppSelector: vi.fn(),
 }));

@@ -3,7 +3,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { GoogleAuthButton } from './GoogleAuthButton';
 
-// Mock hook
 vi.mock('../shared/src/web', () => ({
   useGoogleAuthUrlQuery: vi.fn(),
 }));
@@ -93,7 +92,6 @@ describe('GoogleAuthButton', () => {
     const button = screen.getByRole('button');
     expect(button).toBeDisabled();
     
-    // Clicking disabled button should not trigger anything
     fireEvent.click(button);
     expect(mockOnError).not.toHaveBeenCalled();
   });

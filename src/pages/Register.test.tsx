@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { Register } from './Register';
 
-// Mock RTK Query hook
 vi.mock('../shared/src/web', async () => ({
   useRegisterMutation: vi.fn(),
   useGoogleAuthUrlQuery: vi.fn(() => ({ data: null, isLoading: false })),
@@ -12,7 +11,6 @@ vi.mock('../shared/src/web', async () => ({
 
 import { useRegisterMutation } from '../shared/src/web';
 
-// Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -91,7 +89,7 @@ describe('Register Component', () => {
     });
     fireEvent.change(screen.getByLabelText('Password'), {
       target: { value: 'Abcd123!' },
-    }); // strong password
+    });
     fireEvent.change(screen.getByLabelText('Confirm Password'), {
       target: { value: 'Abcd123!' },
     });
@@ -158,13 +156,10 @@ describe('Register Component', () => {
     
     const passwordInput = screen.getByLabelText('Password');
     
-    // Weak password
     fireEvent.change(passwordInput, { target: { value: 'weak' } });
     await screen.findByText('At least 8 characters');
     
-    // Strong password
     fireEvent.change(passwordInput, { target: { value: 'Strong123!' } });
-    // Requirements should still be visible
     expect(screen.getByText('At least 8 characters')).toBeInTheDocument();
   });
 
@@ -174,7 +169,6 @@ describe('Register Component', () => {
     const passwordInput = screen.getByLabelText('Password') as HTMLInputElement;
     expect(passwordInput.type).toBe('password');
     
-    // Find and click eye button
     const toggleButtons = screen.getAllByRole('button');
     const eyeButton = toggleButtons.find(btn => btn !== screen.getByRole('button', { name: /Register/i }));
     

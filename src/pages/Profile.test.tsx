@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { Profile } from './Profile';
 
-// Mock Redux hooks & API hooks
 vi.mock('../shared/src/web', async () => {
   return {
     useAppDispatch: vi.fn(),
@@ -41,15 +40,12 @@ describe('Profile component', () => {
   beforeEach(() => {
     vi.clearAllMocks();
 
-    // Mock dispatch
     (useAppDispatch as unknown as Mock).mockReturnValue(mockDispatch);
 
-    // Default Redux state
     (useAppSelector as unknown as Mock).mockImplementation((selector) =>
       selector({ auth: { user: mockUser } })
     );
 
-    // Default services query
     (useGetServicesQuery as unknown as Mock).mockReturnValue({
       data: {
         server: {
@@ -61,7 +57,6 @@ describe('Profile component', () => {
       },
     });
 
-    // Default API hooks
     (useGetGithubAuthUrlQuery as unknown as Mock).mockReturnValue({
       refetch: mockRefetch,
     });
@@ -118,7 +113,6 @@ describe('Profile component', () => {
 
     const githubButton = screen.getByText('Link GitHub Account');
 
-    // Mock window.location.href
     delete (window as any).location;
     window.location = { href: '' } as any;
 
@@ -136,7 +130,6 @@ describe('Profile component', () => {
 
     const msButton = screen.getByText('Link Microsoft Account');
 
-    // Mock window.location.href
     delete (window as any).location;
     window.location = { href: '' } as any;
 

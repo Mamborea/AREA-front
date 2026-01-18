@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { Navbar } from './Navbar';
 
-// Mock redux hooks & actions
 vi.mock('../shared/src/web', async () => {
   return {
     useAppDispatch: vi.fn(),
@@ -13,7 +12,6 @@ vi.mock('../shared/src/web', async () => {
   };
 });
 
-// Mock useNavigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();

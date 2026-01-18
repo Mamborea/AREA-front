@@ -3,7 +3,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { ConfigModal } from './ConfigModal';
 import type { ActionNodeData, ReactionNodeData } from '../../shared/src/types';
 
-// Mock all config forms
 vi.mock('./forms/GithubConfigForm', () => ({
   GithubConfigForm: () => <div>GitHub Config Form</div>,
 }));

@@ -6,7 +6,6 @@ import type { Mock } from 'vitest';
 import { GoogleCallback } from './GoogleCallback';
 import { store } from '../shared/src/web';
 
-// Mock navigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -16,7 +15,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// Mock mutation
 vi.mock('../shared/src/web', async (importOriginal) => {
   const actual = await importOriginal<typeof import('../shared/src/web')>();
   return {
@@ -105,7 +103,6 @@ describe('GoogleCallback', () => {
       expect(screen.getByText('Success! Redirecting...')).toBeInTheDocument();
     });
 
-    // Wait for setTimeout
     await waitFor(
       () => {
         expect(mockNavigate).toHaveBeenCalledWith('/dashboard', { replace: true });
@@ -172,7 +169,7 @@ describe('GoogleCallback', () => {
 
     mockGoogleAuthValidate.mockReturnValue({
       unwrap: vi.fn().mockImplementation(
-        () => new Promise(() => {}) // Never resolves
+        () => new Promise(() => {})
       ),
     });
 

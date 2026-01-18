@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { GmailCallback } from './GmailCallback';
 
-// Mock navigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -14,7 +13,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// Mock mutation
 vi.mock('../shared/src/web', () => ({
   useValidateGmailMutation: vi.fn(),
 }));
@@ -136,7 +134,7 @@ describe('GmailCallback', () => {
 
     mockValidateGmail.mockReturnValue({
       unwrap: vi.fn().mockImplementation(
-        () => new Promise(() => {}) // Never resolves
+        () => new Promise(() => {})
       ),
     });
 
@@ -164,7 +162,6 @@ describe('GmailCallback', () => {
       </MemoryRouter>
     );
 
-    // Should still proceed with web flow
     await waitFor(() => {
       expect(mockValidateGmail).toHaveBeenCalledWith({ code });
     });

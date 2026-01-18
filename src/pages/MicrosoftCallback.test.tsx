@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { MicrosoftCallback } from './MicrosoftCallback';
 
-// Mock navigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -14,7 +13,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// Mock mutation
 vi.mock('../shared/src/web', () => ({
   useValidateMicrosoftMutation: vi.fn(),
 }));
@@ -138,7 +136,7 @@ describe('MicrosoftCallback', () => {
 
     mockValidateMicrosoft.mockReturnValue({
       unwrap: vi.fn().mockImplementation(
-        () => new Promise(() => {}) // Never resolves
+        () => new Promise(() => {})
       ),
     });
 
@@ -166,7 +164,6 @@ describe('MicrosoftCallback', () => {
       </MemoryRouter>
     );
 
-    // Should still proceed with web flow
     await waitFor(() => {
       expect(mockValidateMicrosoft).toHaveBeenCalledWith({ code });
     });

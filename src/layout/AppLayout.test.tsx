@@ -3,7 +3,6 @@ import { MemoryRouter } from 'react-router-dom';
 import { describe, expect, it, vi } from 'vitest';
 import AppLayout from './AppLayout';
 
-// Mock Navbar
 vi.mock('../components', () => ({
   Navbar: () => <div data-testid="navbar">Navbar</div>,
 }));

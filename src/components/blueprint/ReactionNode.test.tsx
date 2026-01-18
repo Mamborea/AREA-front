@@ -6,7 +6,7 @@ import type { ReactionNodeData } from '../../shared/src/types';
 
 describe('ReactionNode', () => {
   const mockData: ReactionNodeData = {
-    reactionType: 2, // Discord Message
+    reactionType: 2,
     label: 'Send Discord Message',
     isConfigured: true,
     config: { to: '#general', message: 'Hello!' },
@@ -65,7 +65,7 @@ describe('ReactionNode', () => {
 
   it('displays correct icon for Gmail reaction', () => {
     const gmailData: ReactionNodeData = {
-      reactionType: 5, // Gmail
+      reactionType: 5,
       label: 'Send Gmail',
       isConfigured: false,
       config: {},
@@ -79,7 +79,7 @@ describe('ReactionNode', () => {
 
   it('displays correct icon for Jira Issue reaction', () => {
     const jiraData: ReactionNodeData = {
-      reactionType: 6, // Jira Issue
+      reactionType: 6,
       label: 'Create Jira Issue',
       isConfigured: true,
       config: { summary: 'Test issue' },

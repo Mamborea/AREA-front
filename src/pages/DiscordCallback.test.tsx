@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Mock } from 'vitest';
 import { DiscordCallback } from './DiscordCallback';
 
-// Mock navigate
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async (importOriginal) => {
   const actual = await importOriginal<typeof import('react-router-dom')>();
@@ -14,7 +13,6 @@ vi.mock('react-router-dom', async (importOriginal) => {
   };
 });
 
-// Mock mutation
 vi.mock('../shared/src/web', () => ({
   useValidateDiscordMutation: vi.fn(),
 }));
@@ -134,7 +132,7 @@ describe('DiscordCallback', () => {
 
     mockValidateDiscord.mockReturnValue({
       unwrap: vi.fn().mockImplementation(
-        () => new Promise(() => {}) // Never resolves
+        () => new Promise(() => {})
       ),
     });
 
@@ -162,7 +160,6 @@ describe('DiscordCallback', () => {
       </MemoryRouter>
     );
 
-    // Should still proceed with web flow
     await waitFor(() => {
       expect(mockValidateDiscord).toHaveBeenCalledWith({
         code,
